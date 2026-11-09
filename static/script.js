@@ -1,6 +1,7 @@
 /**
- * Credit Risk Management — Underwriting Dashboard Controller
- * Modern fintech client for FastAPI / Calibrated XGBoost backend.
+ * Credit Risk Management — Frontend Controller
+ * Implements theme switching (Light/Dark), dynamic LTI calculation,
+ * semicircular gauge animation, modal navigation, and FastAPI /predict integration.
  */
 (() => {
   "use strict";
@@ -8,17 +9,13 @@
   // ---------------------------------------------------------------------------
   // DOM Elements
   // ---------------------------------------------------------------------------
-  const form = document.getElementById("loanForm");
-  const submitBtn = document.getElementById("submitBtn");
-  const formError = document.getElementById("formError");
+  // Form elements
+  const loanForm = document.getElementById("loanForm");
+  const assessBtn = document.getElementById("assessBtn");
+  const formErrorAlert = document.getElementById("formErrorAlert");
   const formErrorMessage = document.getElementById("formErrorMessage");
 
-  // Status Elements
-  const statusDot = document.getElementById("statusDot");
-  const statusText = document.getElementById("statusText");
-  const kpiThreshold = document.getElementById("kpiThreshold");
-
-  // Form Inputs
+  // Inputs
   const ageInput = document.getElementById("person_age");
   const incomeInput = document.getElementById("person_income");
   const homeOwnershipInput = document.getElementById("person_home_ownership");
@@ -30,388 +27,316 @@
   const loanPercentIncomeInput = document.getElementById("loan_percent_income");
   const defaultOnFileInput = document.getElementById("cb_person_default_on_file");
   const credHistLengthInput = document.getElementById("cb_person_cred_hist_length");
+  const ltiBadgeDisplay = document.getElementById("ltiBadgeDisplay");
 
-  // LTI Dynamic Controls
-  const ltiBadge = document.getElementById("ltiBadge");
-  const ltiFormula = document.getElementById("ltiFormula");
-  const btnResetLti = document.getElementById("btnResetLti");
+  // Result card elements
+  const riskBanner = document.getElementById("riskBanner");
+  const riskBannerIcon = document.getElementById("riskBannerIcon");
+  const riskStatusTitle = document.getElementById("riskStatusTitle");
+  const riskStatusDesc = document.getElementById("riskStatusDesc");
 
-  // Preset Buttons
-  const btnPresetPrime = document.getElementById("btnPresetPrime");
-  const btnPresetBorderline = document.getElementById("btnPresetBorderline");
-  const btnPresetSubprime = document.getElementById("btnPresetSubprime");
-  const btnResetForm = document.getElementById("btnResetForm");
+  const gaugeTrackFill = document.getElementById("gaugeTrackFill");
+  const gaugeProbNumber = document.getElementById("gaugeProbNumber");
+  const thresholdDisplayPill = document.getElementById("thresholdDisplayPill");
+  const modalThresholdVal = document.getElementById("modalThresholdVal");
 
-  // Results & Visualizer
-  const awaitingState = document.getElementById("awaitingState");
-  const resultsPanel = document.getElementById("resultsPanel");
-  const verdictBanner = document.getElementById("verdictBanner");
-  const verdictIcon = document.getElementById("verdictIcon");
-  const verdictHeadline = document.getElementById("verdictHeadline");
-  const verdictSummary = document.getElementById("verdictSummary");
+  // Navigation & Theme
+  const themeToggleBtn = document.getElementById("themeToggleBtn");
+  const themeText = document.getElementById("themeText");
+  const apiStatusPill = document.getElementById("apiStatusPill");
+  const apiStatusIcon = document.getElementById("apiStatusIcon");
+  const apiStatusText = document.getElementById("apiStatusText");
 
-  const gaugeProgress = document.getElementById("gaugeProgress");
-  const probValue = document.getElementById("probValue");
-  const metaThreshold = document.getElementById("metaThreshold");
-  const metaMargin = document.getElementById("metaMargin");
-  const metaClass = document.getElementById("metaClass");
+  const navAssessmentBtn = document.getElementById("navAssessmentBtn");
+  const navAboutBtn = document.getElementById("navAboutBtn");
+  const navHowItWorksBtn = document.getElementById("navHowItWorksBtn");
 
-  const spectrumThresholdMarker = document.getElementById("spectrumThresholdMarker");
-  const spectrumApplicantMarker = document.getElementById("spectrumApplicantMarker");
-  const spectrumThreshLabel = document.getElementById("spectrumThreshLabel");
-
-  const tableProb = document.getElementById("tableProb");
-  const tableThreshold = document.getElementById("tableThreshold");
-  const tableResult = document.getElementById("tableResult");
-  const tableLti = document.getElementById("tableLti");
-  const interpretationText = document.getElementById("interpretationText");
+  const aboutModal = document.getElementById("aboutModal");
+  const closeAboutModal = document.getElementById("closeAboutModal");
+  const howItWorksModal = document.getElementById("howItWorksModal");
+  const closeHowModal = document.getElementById("closeHowModal");
 
   // Constants
-  const GAUGE_CIRCUMFERENCE = 515.22; // 2 * PI * 82
+  const GAUGE_LENGTH = 235.62; // pi * 75
   let activeThreshold = 0.4328;
-  let isLtiOverridden = false;
 
   // ---------------------------------------------------------------------------
-  // 1. Service Health Check & Initialization
+  // 1. Theme Management (Light / Dark Mode)
   // ---------------------------------------------------------------------------
-  async function checkServiceHealth() {
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem("crm_theme", theme);
+    } catch (e) {}
+
+    if (themeText) {
+      themeText.textContent = theme === "dark" ? "Dark" : "Light";
+    }
+  }
+
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    applyTheme(newTheme);
+  }
+
+  themeToggleBtn.addEventListener("click", toggleTheme);
+
+  // Sync initial button text
+  const initialTheme = document.documentElement.getAttribute("data-theme") || "light";
+  if (themeText) themeText.textContent = initialTheme === "dark" ? "Dark" : "Light";
+
+  // Listen to OS theme changes if user hasn't explicitly set a preference
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+      if (!localStorage.getItem("crm_theme")) {
+        applyTheme(e.matches ? "dark" : "light");
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // 2. Modals & Navigation
+  // ---------------------------------------------------------------------------
+  function openModal(modal) {
+    modal.hidden = false;
+  }
+
+  function closeModal(modal) {
+    modal.hidden = true;
+  }
+
+  navAboutBtn.addEventListener("click", () => openModal(aboutModal));
+  closeAboutModal.addEventListener("click", () => closeModal(aboutModal));
+  aboutModal.addEventListener("click", (e) => {
+    if (e.target === aboutModal) closeModal(aboutModal);
+  });
+
+  navHowItWorksBtn.addEventListener("click", () => openModal(howItWorksModal));
+  closeHowModal.addEventListener("click", () => closeModal(howItWorksModal));
+  howItWorksModal.addEventListener("click", (e) => {
+    if (e.target === howItWorksModal) closeModal(howItWorksModal);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeModal(aboutModal);
+      closeModal(howItWorksModal);
+    }
+  });
+
+  navAssessmentBtn.addEventListener("click", () => {
+    ageInput.focus();
+    ageInput.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
+  // ---------------------------------------------------------------------------
+  // 3. API Health Check
+  // ---------------------------------------------------------------------------
+  async function checkHealth() {
     try {
       const res = await fetch("/health", { method: "GET" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error("Unhealthy");
       const data = await res.json();
 
       if (data.status === "healthy") {
-        statusDot.className = "status-dot online";
-        statusText.textContent = "System Online • API Ready";
+        apiStatusPill.className = "api-status-pill online";
+        apiStatusIcon.textContent = "✔";
+        apiStatusText.textContent = "API Online";
 
         if (typeof data.threshold === "number") {
           activeThreshold = data.threshold;
-          const threshPct = (activeThreshold * 100).toFixed(2);
-          if (kpiThreshold) kpiThreshold.textContent = `${threshPct}%`;
-          if (metaThreshold) metaThreshold.textContent = `${threshPct}%`;
-          if (spectrumThreshLabel) spectrumThreshLabel.textContent = `Threshold: ${threshPct}%`;
-          if (spectrumThresholdMarker) spectrumThresholdMarker.style.left = `${threshPct}%`;
+          const formattedCutoff = activeThreshold.toFixed(2);
+          if (thresholdDisplayPill) thresholdDisplayPill.textContent = formattedCutoff;
+          if (modalThresholdVal) modalThresholdVal.textContent = activeThreshold.toFixed(4);
         }
       } else {
-        throw new Error("Service reported unhealthy status");
+        throw new Error("Degraded");
       }
-    } catch (err) {
-      statusDot.className = "status-dot offline";
-      statusText.textContent = "Backend Offline";
-      console.warn("Credit Risk API health check failed:", err.message);
+    } catch (_) {
+      apiStatusPill.className = "api-status-pill offline";
+      apiStatusIcon.textContent = "✖";
+      apiStatusText.textContent = "API Offline";
     }
   }
 
+  checkHealth();
+  setInterval(checkHealth, 30000);
+
   // ---------------------------------------------------------------------------
-  // 2. Loan-to-Income (LTI) Dynamic Ratio Calculation
+  // 4. Currency Formatting & Loan-to-Income (LTI) Auto-Calculation
   // ---------------------------------------------------------------------------
-  function formatCurrency(val) {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(val || 0);
+  function parseCurrency(str) {
+    if (typeof str === "number") return str;
+    return parseFloat(String(str).replace(/[^0-9.-]+/g, "")) || 0;
   }
 
-  function calculateLti() {
-    const income = parseFloat(incomeInput.value) || 0;
-    const amount = parseFloat(loanAmntInput.value) || 0;
+  function formatWithCommas(num) {
+    if (isNaN(num)) return "0";
+    return new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(num);
+  }
+
+  function calculateLTI() {
+    const income = parseCurrency(incomeInput.value);
+    const amount = parseCurrency(loanAmntInput.value);
 
     if (income > 0) {
-      const ratio = amount / income;
-      const formattedRatio = Math.min(2.0, Math.max(0, ratio)).toFixed(2);
-
-      if (!isLtiOverridden) {
-        loanPercentIncomeInput.value = formattedRatio;
-      }
-
-      ltiFormula.textContent = `Loan (${formatCurrency(amount)}) / Income (${formatCurrency(income)}) = ${(amount / income).toFixed(2)}`;
+      const exactRatio = amount / income;
+      // Display with 4 decimal places (e.g. 0.1667)
+      ltiBadgeDisplay.textContent = exactRatio.toFixed(4);
+      // Backend expects float with 2 decimal places (e.g. 0.17)
+      loanPercentIncomeInput.value = parseFloat(exactRatio.toFixed(2));
     } else {
-      if (!isLtiOverridden) {
-        loanPercentIncomeInput.value = "0.00";
-      }
-      ltiFormula.textContent = "Income must be greater than $0 to compute LTI.";
+      ltiBadgeDisplay.textContent = "0.0000";
+      loanPercentIncomeInput.value = 0.0;
     }
   }
 
-  // Manual override detection
-  loanPercentIncomeInput.addEventListener("input", () => {
-    isLtiOverridden = true;
-    ltiBadge.textContent = "Manual Override";
-    ltiBadge.classList.add("overridden");
-    btnResetLti.hidden = false;
+  // Format on blur, clean on focus
+  incomeInput.addEventListener("blur", () => {
+    const val = parseCurrency(incomeInput.value);
+    incomeInput.value = formatWithCommas(val);
+    calculateLTI();
   });
 
-  btnResetLti.addEventListener("click", () => {
-    isLtiOverridden = false;
-    ltiBadge.textContent = "Auto-calculated";
-    ltiBadge.classList.remove("overridden");
-    btnResetLti.hidden = true;
-    calculateLti();
+  incomeInput.addEventListener("input", calculateLTI);
+
+  loanAmntInput.addEventListener("blur", () => {
+    const val = parseCurrency(loanAmntInput.value);
+    loanAmntInput.value = formatWithCommas(val);
+    calculateLTI();
   });
 
-  incomeInput.addEventListener("input", calculateLti);
-  loanAmntInput.addEventListener("input", calculateLti);
+  loanAmntInput.addEventListener("input", calculateLTI);
+
+  calculateLTI();
 
   // ---------------------------------------------------------------------------
-  // 3. Preset Scenario Profiles
+  // 5. Gauge & Results Rendering
   // ---------------------------------------------------------------------------
-  const PRESETS = {
-    prime: {
-      person_age: 30,
-      person_income: 65000,
-      person_home_ownership: "RENT",
-      person_emp_length: 6.0,
-      loan_intent: "EDUCATION",
-      loan_grade: "B",
-      loan_amnt: 8000,
-      loan_int_rate: 9.50,
-      loan_percent_income: 0.12,
-      cb_person_default_on_file: "N",
-      cb_person_cred_hist_length: 6,
-    },
-    borderline: {
-      person_age: 22,
-      person_income: 12000,
-      person_home_ownership: "MORTGAGE",
-      person_emp_length: 7.0,
-      loan_intent: "EDUCATION",
-      loan_grade: "D",
-      loan_amnt: 1500,
-      loan_int_rate: 14.84,
-      loan_percent_income: 0.13,
-      cb_person_default_on_file: "Y",
-      cb_person_cred_hist_length: 3,
-    },
-    subprime: {
-      person_age: 23,
-      person_income: 22000,
-      person_home_ownership: "RENT",
-      person_emp_length: 1.0,
-      loan_intent: "DEBTCONSOLIDATION",
-      loan_grade: "E",
-      loan_amnt: 15000,
-      loan_int_rate: 18.50,
-      loan_percent_income: 0.68,
-      cb_person_default_on_file: "Y",
-      cb_person_cred_hist_length: 2,
-    },
-  };
-
-  function applyPreset(preset) {
-    ageInput.value = preset.person_age;
-    incomeInput.value = preset.person_income;
-    homeOwnershipInput.value = preset.person_home_ownership;
-    empLengthInput.value = preset.person_emp_length;
-    loanIntentInput.value = preset.loan_intent;
-    loanGradeInput.value = preset.loan_grade;
-    loanAmntInput.value = preset.loan_amnt;
-    loanIntRateInput.value = preset.loan_int_rate;
-
-    isLtiOverridden = false;
-    ltiBadge.textContent = "Auto-calculated";
-    ltiBadge.classList.remove("overridden");
-    btnResetLti.hidden = true;
-    loanPercentIncomeInput.value = preset.loan_percent_income;
-
-    defaultOnFileInput.value = preset.cb_person_default_on_file;
-    credHistLengthInput.value = preset.cb_person_cred_hist_length;
-
-    calculateLti();
-    clearError();
-  }
-
-  btnPresetPrime.addEventListener("click", () => applyPreset(PRESETS.prime));
-  btnPresetBorderline.addEventListener("click", () => applyPreset(PRESETS.borderline));
-  btnPresetSubprime.addEventListener("click", () => applyPreset(PRESETS.subprime));
-
-  btnResetForm.addEventListener("click", () => {
-    applyPreset(PRESETS.prime);
-    if (resultsPanel) resultsPanel.hidden = true;
-    if (awaitingState) awaitingState.hidden = false;
-    clearError();
-  });
-
-  // ---------------------------------------------------------------------------
-  // 4. UI State Helpers
-  // ---------------------------------------------------------------------------
-  function setLoading(isLoading) {
-    submitBtn.disabled = isLoading;
-    submitBtn.classList.toggle("loading", isLoading);
-    const btnText = submitBtn.querySelector(".btn-text");
-    if (btnText) {
-      btnText.textContent = isLoading
-        ? "Evaluating Credit Risk…"
-        : "Assess Credit Risk";
-    }
-  }
-
-  function showError(msg) {
-    formErrorMessage.textContent = msg;
-    formError.hidden = false;
-  }
-
-  function clearError() {
-    formError.hidden = true;
-    formErrorMessage.textContent = "";
-  }
-
-  // Smooth number ticker animation
-  function animateTicker(el, fromVal, toVal, durationMs = 900) {
+  function animateNumberTicker(el, start, end, duration = 800) {
     const startTime = performance.now();
-    function step(now) {
+    function tick(now) {
       const elapsed = now - startTime;
-      const progress = Math.min(1, elapsed / durationMs);
-      // Ease out cubic
+      const progress = Math.min(1, elapsed / duration);
       const eased = 1 - Math.pow(1 - progress, 3);
-      const current = fromVal + (toVal - fromVal) * eased;
-      el.textContent = current.toFixed(1);
-
+      const current = start + (end - start) * eased;
+      el.textContent = `${current.toFixed(1)}%`;
       if (progress < 1) {
-        requestAnimationFrame(step);
+        requestAnimationFrame(tick);
       } else {
-        el.textContent = toVal.toFixed(1);
+        el.textContent = `${end.toFixed(1)}%`;
       }
     }
-    requestAnimationFrame(step);
+    requestAnimationFrame(tick);
   }
 
-  // ---------------------------------------------------------------------------
-  // 5. Render Verdict & Visualizations
-  // ---------------------------------------------------------------------------
-  function renderVerdict(data) {
+  function renderPredictionResult(data) {
     const probability = Number(data.default_probability) || 0;
     const threshold = Number(data.threshold) || activeThreshold;
     const isHighRisk = data.default_prediction === 1;
+
     const probPct = probability * 100;
-    const threshPct = threshold * 100;
+    const threshFormatted = threshold.toFixed(2);
 
-    // Switch view from placeholder to results
-    awaitingState.hidden = true;
-    resultsPanel.hidden = false;
-
-    // Update Verdict Banner
-    verdictBanner.className = `verdict-banner ${isHighRisk ? "verdict--high" : "verdict--low"}`;
-
+    // Update Banner
     if (isHighRisk) {
-      verdictHeadline.textContent = "HIGH RISK — DEFAULT WARNING";
-      verdictSummary.textContent = `Calibrated default probability of ${probPct.toFixed(1)}% exceeds the ${threshPct.toFixed(1)}% decision threshold.`;
-      verdictIcon.innerHTML = `
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-          <line x1="12" y1="9" x2="12" y2="13"/>
-          <line x1="12" y1="17" x2="12.01" y2="17"/>
+      riskBanner.className = "risk-classification-banner risk-high";
+      riskStatusTitle.textContent = "High Risk";
+      riskStatusDesc.textContent = "The applicant has a high probability of default on the loan.";
+      riskBannerIcon.innerHTML = `
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
+          <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
         </svg>
       `;
     } else {
-      verdictHeadline.textContent = "LOW RISK — FAVORABLE PROFILE";
-      verdictSummary.textContent = `Calibrated default probability of ${probPct.toFixed(1)}% is safely below the ${threshPct.toFixed(1)}% decision threshold.`;
-      verdictIcon.innerHTML = `
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          <polyline points="9 12 11 14 15 10"/>
+      riskBanner.className = "risk-classification-banner risk-low";
+      riskStatusTitle.textContent = "Low Risk";
+      riskStatusDesc.textContent = "The applicant is unlikely to default on the loan.";
+      riskBannerIcon.innerHTML = `
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
+          <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-4-4 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z" />
         </svg>
       `;
     }
 
-    // Circular Gauge Animation
-    const strokeOffset = GAUGE_CIRCUMFERENCE * (1 - Math.min(1, probability));
-    gaugeProgress.style.stroke = isHighRisk ? "var(--risk-high)" : "var(--risk-low)";
+    // Semicircular Gauge Animation
+    const strokeOffset = GAUGE_LENGTH * (1 - Math.min(1, Math.max(0, probability)));
+    gaugeTrackFill.style.stroke = isHighRisk ? "var(--risk-high-gauge)" : "var(--risk-low-gauge)";
     requestAnimationFrame(() => {
-      gaugeProgress.style.strokeDashoffset = strokeOffset;
+      gaugeTrackFill.style.strokeDashoffset = strokeOffset;
     });
 
-    // Probability readout ticker
-    animateTicker(probValue, 0, probPct, 1000);
+    // Animate Number
+    animateNumberTicker(gaugeProbNumber, 0, probPct);
 
-    // Meta stats
-    const margin = probPct - threshPct;
-    const marginSign = margin >= 0 ? "+" : "";
-    metaThreshold.textContent = `${threshPct.toFixed(2)}%`;
-    metaMargin.textContent = `${marginSign}${margin.toFixed(1)}%`;
-    metaMargin.style.color = isHighRisk ? "var(--risk-high)" : "var(--risk-low)";
-    metaClass.textContent = `${data.default_prediction} (${isHighRisk ? "Default Risk" : "Non-Default"})`;
-
-    // Linear Spectrum Markers
-    const markerLeft = Math.min(100, Math.max(0, probPct));
-    spectrumApplicantMarker.style.left = `${markerLeft}%`;
-    spectrumThresholdMarker.style.left = `${threshPct}%`;
-
-    // Metrics Ledger Table
-    tableProb.textContent = `${probPct.toFixed(2)}%`;
-    tableProb.style.color = isHighRisk ? "var(--risk-high)" : "var(--risk-low)";
-    tableThreshold.textContent = `${threshPct.toFixed(2)}%`;
-    tableResult.textContent = data.Result || (isHighRisk ? "High Risk" : "Low Risk");
-    tableResult.style.color = isHighRisk ? "var(--risk-high)" : "var(--risk-low)";
-
-    const ltiVal = parseFloat(loanPercentIncomeInput.value) || 0;
-    let ltiTier = "Conservative";
-    if (ltiVal > 0.40) ltiTier = "Elevated Exposure";
-    else if (ltiVal > 0.20) ltiTier = "Moderate Exposure";
-    tableLti.textContent = `${(ltiVal * 100).toFixed(1)}% (${ltiTier})`;
-
-    // Underwriting Interpretation Text
+    // Threshold pill
+    thresholdDisplayPill.textContent = threshFormatted;
     if (isHighRisk) {
-      interpretationText.innerHTML = `
-        The applicant has been assigned a <strong>High Risk</strong> tier because the model-estimated default probability of <strong>${probPct.toFixed(1)}%</strong> surpasses the tuned decision threshold of <strong>${threshPct.toFixed(1)}%</strong>. 
-        Contributing factors typically include higher leverage relative to earnings (LTI: ${(ltiVal * 100).toFixed(0)}%), risk grade classification, or previous delinquency markers in the bureau file.
-      `;
+      thresholdDisplayPill.style.backgroundColor = "var(--risk-high-pill-bg)";
+      thresholdDisplayPill.style.borderColor = "var(--risk-high-pill-border)";
+      thresholdDisplayPill.style.color = "var(--risk-high-ink)";
     } else {
-      interpretationText.innerHTML = `
-        The applicant has been assigned a <strong>Low Risk</strong> tier because the estimated default probability of <strong>${probPct.toFixed(1)}%</strong> remains comfortably below the optimal cutoff of <strong>${threshPct.toFixed(1)}%</strong>. 
-        This profile indicates healthy debt coverage (LTI: ${(ltiVal * 100).toFixed(0)}%), favorable credit tiering, and compliant bureau history.
-      `;
-    }
-
-    // Smooth scroll into view on small screens
-    if (window.innerWidth <= 1024) {
-      resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      thresholdDisplayPill.style.backgroundColor = "var(--risk-low-pill-bg)";
+      thresholdDisplayPill.style.borderColor = "var(--risk-low-pill-border)";
+      thresholdDisplayPill.style.color = "var(--risk-low-ink)";
     }
   }
 
   // ---------------------------------------------------------------------------
-  // 6. Form Submission & API Request
+  // 6. Form Submission & Real Backend Integration
   // ---------------------------------------------------------------------------
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  function showError(msg) {
+    formErrorMessage.textContent = msg;
+    formErrorAlert.hidden = false;
+  }
+
+  function clearError() {
+    formErrorAlert.hidden = true;
+    formErrorMessage.textContent = "";
+  }
+
+  function setLoading(isLoading) {
+    assessBtn.disabled = isLoading;
+    assessBtn.classList.toggle("loading", isLoading);
+    const label = assessBtn.querySelector(".submit-label");
+    if (label) {
+      label.textContent = isLoading ? "Evaluating..." : "Assess Credit Risk";
+    }
+  }
+
+  async function performAssessment() {
     clearError();
 
-    // Client-side validation checks
     const age = parseInt(ageInput.value, 10);
-    const income = parseFloat(incomeInput.value);
+    const income = parseCurrency(incomeInput.value);
     const empLength = parseFloat(empLengthInput.value);
-    const amount = parseFloat(loanAmntInput.value);
+    const amount = parseCurrency(loanAmntInput.value);
     const rate = parseFloat(loanIntRateInput.value);
     const percentIncome = parseFloat(loanPercentIncomeInput.value);
     const credHist = parseInt(credHistLengthInput.value, 10);
 
-    if (isNaN(age) || age < 18 || age > 120) {
-      showError("Applicant age must be an integer between 18 and 120.");
+    if (isNaN(age) || age < 18 || age > 100) {
+      showError("Please enter a valid age between 18 and 100.");
       ageInput.focus();
       return;
     }
 
-    if (isNaN(income) || income < 0) {
-      showError("Annual income must be a valid positive number.");
+    if (isNaN(income) || income <= 0) {
+      showError("Please enter a valid annual income greater than 0.");
       incomeInput.focus();
       return;
     }
 
     if (isNaN(amount) || amount < 100) {
-      showError("Requested loan amount must be at least $100.");
+      showError("Requested loan amount must be at least ₹100.");
       loanAmntInput.focus();
       return;
     }
 
-    if (isNaN(rate) || rate < 0 || rate > 50) {
-      showError("Interest rate must be between 0.0% and 50.0%.");
+    if (isNaN(rate) || rate < 0 || rate > 40) {
+      showError("Interest rate must be between 0.0% and 40.0%.");
       loanIntRateInput.focus();
-      return;
-    }
-
-    if (isNaN(percentIncome) || percentIncome < 0 || percentIncome > 2.5) {
-      showError("Loan-to-income ratio must be between 0.0 and 2.5.");
-      loanPercentIncomeInput.focus();
       return;
     }
 
@@ -442,7 +367,7 @@
       });
 
       if (!res.ok) {
-        let errDetail = `Server responded with status ${res.status}`;
+        let errDetail = `Server returned HTTP ${res.status}`;
         try {
           const errorJson = await res.json();
           if (errorJson.detail) {
@@ -455,21 +380,23 @@
       }
 
       const data = await res.json();
-      renderVerdict(data);
+      renderPredictionResult(data);
     } catch (err) {
-      showError(`Assessment failed: ${err.message || "Unable to reach prediction service."}`);
+      showError(`Assessment failed: ${err.message || "Could not reach prediction service."}`);
       console.error("Prediction error:", err);
     } finally {
       setLoading(false);
     }
+  }
+
+  loanForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    performAssessment();
   });
 
-  // ---------------------------------------------------------------------------
-  // 7. Initial Bootstrap
-  // ---------------------------------------------------------------------------
-  calculateLti();
-  checkServiceHealth();
+  // Perform initial prediction on page load so the dashboard is immediately populated
+  setTimeout(() => {
+    performAssessment();
+  }, 400);
 
-  // Periodic health ping every 30 seconds
-  setInterval(checkServiceHealth, 30000);
 })();
