@@ -119,16 +119,25 @@
         
         <!-- Card Header -->
         <div class="card-header">
-          <div class="card-icon-badge card-icon-badge--blue" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="5" width="20" height="14" rx="2" />
-              <line x1="2" y1="10" x2="22" y2="10" />
+          <div class="card-header-left">
+            <div class="card-icon-badge card-icon-badge--blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+            </div>
+            <div>
+              <h2 id="formHeading" class="card-title">Loan Application</h2>
+              <p class="card-subtitle">Provide the applicant and loan details to assess the default risk.</p>
+            </div>
+          </div>
+          <button type="button" id="resetBtn" class="form-reset-btn" title="Reset all input fields to empty">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
             </svg>
-          </div>
-          <div>
-            <h2 id="formHeading" class="card-title">Loan Application</h2>
-            <p class="card-subtitle">Provide the applicant and loan details to assess the default risk.</p>
-          </div>
+            <span>Reset</span>
+          </button>
         </div>
 
         <form id="loanForm" class="application-form" novalidate>
@@ -148,11 +157,11 @@
             <div class="fields-row">
               <div class="field-col">
                 <label for="person_age" class="field-label">Age</label>
-                <input type="number" id="person_age" name="person_age" min="18" max="100" step="1" value="30" required class="form-input" />
+                <input type="number" id="person_age" name="person_age" min="18" max="100" step="1" placeholder="e.g. 30" required class="form-input" />
               </div>
               <div class="field-col">
                 <label for="person_income" class="field-label">Annual Income (₹)</label>
-                <input type="text" id="person_income" name="person_income" value="600,000" required class="form-input" />
+                <input type="text" id="person_income" name="person_income" placeholder="e.g. 600000" required class="form-input" />
               </div>
             </div>
 
@@ -161,7 +170,8 @@
                 <label for="person_home_ownership" class="field-label">Home Ownership</label>
                 <div class="select-wrapper">
                   <select id="person_home_ownership" name="person_home_ownership" required class="form-select">
-                    <option value="RENT" selected>RENT</option>
+                    <option value="" disabled selected hidden>Select home ownership</option>
+                    <option value="RENT">RENT</option>
                     <option value="MORTGAGE">MORTGAGE</option>
                     <option value="OWN">OWN</option>
                     <option value="OTHER">OTHER</option>
@@ -170,7 +180,7 @@
               </div>
               <div class="field-col">
                 <label for="person_emp_length" class="field-label">Employment Length (years)</label>
-                <input type="number" id="person_emp_length" name="person_emp_length" min="0" max="60" step="0.5" value="5" required class="form-input" />
+                <input type="number" id="person_emp_length" name="person_emp_length" min="0" max="60" step="0.5" placeholder="e.g. 5" required class="form-input" />
               </div>
             </div>
           </div>
@@ -193,7 +203,8 @@
                 <label for="loan_intent" class="field-label">Loan Purpose</label>
                 <div class="select-wrapper">
                   <select id="loan_intent" name="loan_intent" required class="form-select">
-                    <option value="PERSONAL" selected>PERSONAL</option>
+                    <option value="" disabled selected hidden>Select loan purpose</option>
+                    <option value="PERSONAL">PERSONAL</option>
                     <option value="EDUCATION">EDUCATION</option>
                     <option value="MEDICAL">MEDICAL</option>
                     <option value="VENTURE">VENTURE</option>
@@ -206,13 +217,14 @@
                 <label for="loan_grade" class="field-label">Loan Grade</label>
                 <div class="select-wrapper">
                   <select id="loan_grade" name="loan_grade" required class="form-select">
-                    <option value="A">Excellent Credit</option>
-                    <option value="B" selected>Good Credit</option>
-                    <option value="C">Fair Credit</option>
-                    <option value="D">Below Avg Credit</option>
-                    <option value="E">Poor Credit</option>
-                    <option value="F">Very Poor Credit</option>
-                    <option value="G">Weakest Credit</option>
+                    <option value="" disabled selected hidden>Select loan grade</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
                   </select>
                 </div>
               </div>
@@ -221,11 +233,11 @@
             <div class="fields-row">
               <div class="field-col">
                 <label for="loan_amnt" class="field-label">Loan Amount (₹)</label>
-                <input type="text" id="loan_amnt" name="loan_amnt" value="100,000" required class="form-input" />
+                <input type="text" id="loan_amnt" name="loan_amnt" placeholder="e.g. 100000" required class="form-input" />
               </div>
               <div class="field-col">
                 <label for="loan_int_rate" class="field-label">Interest Rate (%)</label>
-                <input type="number" id="loan_int_rate" name="loan_int_rate" min="0" max="40" step="0.1" value="11.5" required class="form-input" />
+                <input type="number" id="loan_int_rate" name="loan_int_rate" min="0" max="40" step="0.1" placeholder="e.g. 11.5" required class="form-input" />
               </div>
             </div>
 
@@ -245,9 +257,9 @@
                   <div class="lti-formula">Loan Amount ÷ Annual Income</div>
                 </div>
               </div>
-              <div class="lti-badge-value mono" id="ltiBadgeDisplay">0.1667</div>
+              <div class="lti-badge-value mono" id="ltiBadgeDisplay">—</div>
             </div>
-            <input type="hidden" id="loan_percent_income" name="loan_percent_income" value="0.17" />
+            <input type="hidden" id="loan_percent_income" name="loan_percent_income" value="" />
           </div>
 
           <!-- 3. Credit History Section -->
@@ -267,14 +279,15 @@
                 <label for="cb_person_default_on_file" class="field-label">Previous Default on File</label>
                 <div class="select-wrapper">
                   <select id="cb_person_default_on_file" name="cb_person_default_on_file" required class="form-select">
-                    <option value="N" selected>No</option>
-                    <option value="Y">Yes</option>
+                    <option value="" disabled selected hidden>Select an option</option>
+                    <option value="N">No (N)</option>
+                    <option value="Y">Yes (Y)</option>
                   </select>
                 </div>
               </div>
               <div class="field-col">
                 <label for="cb_person_cred_hist_length" class="field-label">Credit History Length (years)</label>
-                <input type="number" id="cb_person_cred_hist_length" name="cb_person_cred_hist_length" min="0" max="60" step="1" value="6" required class="form-input" />
+                <input type="number" id="cb_person_cred_hist_length" name="cb_person_cred_hist_length" min="0" max="60" step="1" placeholder="e.g. 6" required class="form-input" />
               </div>
             </div>
           </div>
@@ -290,34 +303,36 @@
         
         <!-- Card Header -->
         <div class="card-header">
-          <div class="card-icon-badge card-icon-badge--chart" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
-              <rect x="3" y="13" width="4" height="7" rx="1" fill="currentColor" stroke="none" />
-              <rect x="10" y="8" width="4" height="12" rx="1" fill="currentColor" stroke="none" />
-              <rect x="17" y="3" width="4" height="17" rx="1" fill="currentColor" stroke="none" />
-            </svg>
-          </div>
-          <div>
-            <h2 id="resultHeading" class="card-title">Assessment Result</h2>
-            <p class="card-subtitle">Model prediction for loan default risk.</p>
+          <div class="card-header-left">
+            <div class="card-icon-badge card-icon-badge--chart" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="3" y="13" width="4" height="7" rx="1" fill="currentColor" stroke="none" />
+                <rect x="10" y="8" width="4" height="12" rx="1" fill="currentColor" stroke="none" />
+                <rect x="17" y="3" width="4" height="17" rx="1" fill="currentColor" stroke="none" />
+              </svg>
+            </div>
+            <div>
+              <h2 id="resultHeading" class="card-title">Assessment Result</h2>
+              <p class="card-subtitle">Model prediction for loan default risk.</p>
+            </div>
           </div>
         </div>
 
-        <!-- Risk Classification Banner (Low Risk / High Risk) -->
-        <div class="risk-classification-banner risk-low" id="riskBanner">
+        <!-- Risk Classification Banner (Initial Pending State) -->
+        <div class="risk-classification-banner risk-pending" id="riskBanner">
           <div class="risk-banner-icon" id="riskBannerIcon" aria-hidden="true">
-            <!-- Shield with checkmark -->
-            <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
-              <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-4-4 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z" />
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
             </svg>
           </div>
           <div class="risk-banner-text">
-            <h3 class="risk-status-title" id="riskStatusTitle">Low Risk</h3>
-            <p class="risk-status-desc" id="riskStatusDesc">The applicant is unlikely to default on the loan.</p>
+            <h3 class="risk-status-title" id="riskStatusTitle">Assessment Pending</h3>
+            <p class="risk-status-desc" id="riskStatusDesc">Enter applicant and loan details, then click Assess Credit Risk to generate a prediction.</p>
           </div>
         </div>
 
-        <!-- Gauge Box (Full Width & Centered, Internal Threshold Removed) -->
+        <!-- Gauge Box (Initial Empty / Neutral State) -->
         <div class="gauge-threshold-container">
           
           <!-- Semicircular Gauge -->
@@ -326,14 +341,14 @@
               <svg viewBox="0 0 200 115" class="semicircle-gauge-svg">
                 <!-- Background track (radius 75, circumference of semicircle = 235.62) -->
                 <path class="gauge-track-bg" d="M 25 105 A 75 75 0 0 1 175 105" />
-                <!-- Dynamic progress arc -->
+                <!-- Dynamic progress arc, initially empty -->
                 <path class="gauge-track-fill" id="gaugeTrackFill" d="M 25 105 A 75 75 0 0 1 175 105" />
               </svg>
 
-              <!-- Probability Readout in Center -->
+              <!-- Neutral Readout in Center -->
               <div class="gauge-readout-center">
-                <div class="gauge-percent-number mono" id="gaugeProbNumber">16.7%</div>
-                <div class="gauge-caption-label">Default Probability</div>
+                <div class="gauge-percent-number mono" id="gaugeProbNumber">—</div>
+                <div class="gauge-caption-label" id="gaugeCaptionLabel">Awaiting Assessment</div>
               </div>
             </div>
           </div>

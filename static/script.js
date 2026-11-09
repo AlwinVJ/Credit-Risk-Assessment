@@ -1,7 +1,8 @@
 /**
  * Credit Risk Management — Frontend Controller
  * Implements theme switching (Light/Dark), dynamic LTI calculation,
- * semicircular gauge animation, modal navigation, and FastAPI /predict integration.
+ * semicircular gauge animation, modal navigation, form validation,
+ * empty initial state, and FastAPI /predict integration.
  */
 (() => {
   "use strict";
@@ -12,6 +13,7 @@
   // Form elements
   const loanForm = document.getElementById("loanForm");
   const assessBtn = document.getElementById("assessBtn");
+  const resetBtn = document.getElementById("resetBtn");
 
   // Inputs
   const ageInput = document.getElementById("person_age");
@@ -35,6 +37,7 @@
 
   const gaugeTrackFill = document.getElementById("gaugeTrackFill");
   const gaugeProbNumber = document.getElementById("gaugeProbNumber");
+  const gaugeCaptionLabel = document.getElementById("gaugeCaptionLabel");
   const thresholdDisplayPill = document.getElementById("thresholdDisplayPill");
   const modalThresholdVal = document.getElementById("modalThresholdVal");
 
@@ -54,9 +57,10 @@
   const howItWorksModal = document.getElementById("howItWorksModal");
   const closeHowModal = document.getElementById("closeHowModal");
 
-  // Constants
+  // Constants & State
   const GAUGE_LENGTH = 235.62; // pi * 75
   let activeThreshold = 0.4328;
+  let hasActivePrediction = false;
 
   // ---------------------------------------------------------------------------
   // 1. Theme Management (Light / Dark Mode)
@@ -162,55 +166,148 @@
   setInterval(checkHealth, 30000);
 
   // ---------------------------------------------------------------------------
-  // 4. Currency Formatting & Loan-to-Income (LTI) Auto-Calculation
+  // 4. Currency Formatting & Dynamic Loan-to-Income (LTI) Calculation
   // ---------------------------------------------------------------------------
   function parseCurrency(str) {
     if (typeof str === "number") return str;
+    if (!str) return 0;
     return parseFloat(String(str).replace(/[^0-9.-]+/g, "")) || 0;
   }
 
   function formatWithCommas(num) {
-    if (isNaN(num)) return "0";
+    if (isNaN(num) || num <= 0) return "";
     return new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(num);
   }
 
   function calculateLTI() {
-    const income = parseCurrency(incomeInput.value);
-    const amount = parseCurrency(loanAmntInput.value);
+    const rawIncome = incomeInput.value.trim();
+    const rawAmount = loanAmntInput.value.trim();
 
-    if (income > 0) {
+    if (!rawIncome || !rawAmount) {
+      ltiBadgeDisplay.textContent = "—";
+      loanPercentIncomeInput.value = "";
+      return;
+    }
+
+    const income = parseCurrency(rawIncome);
+    const amount = parseCurrency(rawAmount);
+
+    if (income > 0 && amount > 0) {
       const exactRatio = amount / income;
-      // Display with 4 decimal places (e.g. 0.1667)
       ltiBadgeDisplay.textContent = exactRatio.toFixed(4);
-      // Backend expects float with 2 decimal places (e.g. 0.17)
       loanPercentIncomeInput.value = parseFloat(exactRatio.toFixed(2));
     } else {
-      ltiBadgeDisplay.textContent = "0.0000";
-      loanPercentIncomeInput.value = 0.0;
+      ltiBadgeDisplay.textContent = "—";
+      loanPercentIncomeInput.value = "";
     }
   }
 
-  // Format on blur, clean on focus
+  // Format on blur only if user has entered content
   incomeInput.addEventListener("blur", () => {
+    if (!incomeInput.value.trim()) return;
     const val = parseCurrency(incomeInput.value);
-    incomeInput.value = formatWithCommas(val);
+    if (val > 0) {
+      incomeInput.value = formatWithCommas(val);
+    }
     calculateLTI();
   });
 
   incomeInput.addEventListener("input", calculateLTI);
 
   loanAmntInput.addEventListener("blur", () => {
+    if (!loanAmntInput.value.trim()) return;
     const val = parseCurrency(loanAmntInput.value);
-    loanAmntInput.value = formatWithCommas(val);
+    if (val > 0) {
+      loanAmntInput.value = formatWithCommas(val);
+    }
     calculateLTI();
   });
 
   loanAmntInput.addEventListener("input", calculateLTI);
 
-  calculateLTI();
+  // ---------------------------------------------------------------------------
+  // 5. Invalidate Stale Prediction on Input Modification
+  // ---------------------------------------------------------------------------
+  function invalidatePrediction() {
+    if (!hasActivePrediction) return;
+    hasActivePrediction = false;
+
+    // Reset banner to pending
+    riskBanner.className = "risk-classification-banner risk-pending";
+    riskStatusTitle.textContent = "Assessment Pending";
+    riskStatusDesc.textContent = "Inputs modified. Click Assess Credit Risk to re-evaluate.";
+    riskBannerIcon.innerHTML = `
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    `;
+
+    // Reset gauge to empty state
+    gaugeTrackFill.style.strokeDashoffset = GAUGE_LENGTH;
+    gaugeTrackFill.style.stroke = "var(--risk-pending-gauge)";
+    gaugeProbNumber.textContent = "—";
+    if (gaugeCaptionLabel) gaugeCaptionLabel.textContent = "Awaiting Assessment";
+  }
+
+  // Listen to input changes across all fields to invalidate stale predictions
+  const allFormInputs = [
+    ageInput, incomeInput, homeOwnershipInput, empLengthInput,
+    loanIntentInput, loanGradeInput, loanAmntInput, loanIntRateInput,
+    defaultOnFileInput, credHistLengthInput
+  ];
+
+  allFormInputs.forEach((el) => {
+    if (el) {
+      el.addEventListener("input", () => {
+        el.setCustomValidity("");
+        invalidatePrediction();
+      });
+      el.addEventListener("change", () => {
+        el.setCustomValidity("");
+        invalidatePrediction();
+      });
+    }
+  });
 
   // ---------------------------------------------------------------------------
-  // 5. Gauge & Results Rendering
+  // 6. Form Reset Functionality
+  // ---------------------------------------------------------------------------
+  function resetFormAndAssessment() {
+    loanForm.reset();
+    [ageInput, incomeInput, empLengthInput, loanAmntInput, loanIntRateInput, credHistLengthInput].forEach((el) => {
+      if (el) el.value = "";
+    });
+    [homeOwnershipInput, loanIntentInput, loanGradeInput, defaultOnFileInput].forEach((el) => {
+      if (el) el.selectedIndex = 0;
+    });
+
+    ltiBadgeDisplay.textContent = "—";
+    loanPercentIncomeInput.value = "";
+    clearError();
+
+    hasActivePrediction = false;
+    riskBanner.className = "risk-classification-banner risk-pending";
+    riskStatusTitle.textContent = "Assessment Pending";
+    riskStatusDesc.textContent = "Enter applicant and loan details, then click Assess Credit Risk to generate a prediction.";
+    riskBannerIcon.innerHTML = `
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    `;
+    gaugeTrackFill.style.strokeDashoffset = GAUGE_LENGTH;
+    gaugeTrackFill.style.stroke = "var(--risk-pending-gauge)";
+    gaugeProbNumber.textContent = "—";
+    if (gaugeCaptionLabel) gaugeCaptionLabel.textContent = "Awaiting Assessment";
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", resetFormAndAssessment);
+  }
+
+  // ---------------------------------------------------------------------------
+  // 7. Gauge & Results Rendering
   // ---------------------------------------------------------------------------
   function animateNumberTicker(el, start, end, duration = 800) {
     const startTime = performance.now();
@@ -231,11 +328,10 @@
 
   function renderPredictionResult(data) {
     const probability = Number(data.default_probability) || 0;
-    const threshold = Number(data.threshold) || activeThreshold;
     const isHighRisk = data.default_prediction === 1;
-
     const probPct = probability * 100;
-    const threshFormatted = threshold.toFixed(2);
+
+    hasActivePrediction = true;
 
     // Update Banner
     if (isHighRisk) {
@@ -243,7 +339,7 @@
       riskStatusTitle.textContent = "High Risk";
       riskStatusDesc.textContent = "The applicant has a high probability of default on the loan.";
       riskBannerIcon.innerHTML = `
-        <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
           <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
         </svg>
       `;
@@ -252,7 +348,7 @@
       riskStatusTitle.textContent = "Low Risk";
       riskStatusDesc.textContent = "The applicant is unlikely to default on the loan.";
       riskBannerIcon.innerHTML = `
-        <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
           <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-4-4 1.41-1.41L11 13.67l6.59-6.59L19 8.5l-8 8z" />
         </svg>
       `;
@@ -265,26 +361,13 @@
       gaugeTrackFill.style.strokeDashoffset = strokeOffset;
     });
 
-    // Animate Number
+    // Animate Number & Label
+    if (gaugeCaptionLabel) gaugeCaptionLabel.textContent = "Default Probability";
     animateNumberTicker(gaugeProbNumber, 0, probPct);
-
-    // Threshold pill (if present in DOM)
-    if (thresholdDisplayPill) {
-      thresholdDisplayPill.textContent = threshFormatted;
-      if (isHighRisk) {
-        thresholdDisplayPill.style.backgroundColor = "var(--risk-high-pill-bg)";
-        thresholdDisplayPill.style.borderColor = "var(--risk-high-pill-border)";
-        thresholdDisplayPill.style.color = "var(--risk-high-ink)";
-      } else {
-        thresholdDisplayPill.style.backgroundColor = "var(--risk-low-pill-bg)";
-        thresholdDisplayPill.style.borderColor = "var(--risk-low-pill-border)";
-        thresholdDisplayPill.style.color = "var(--risk-low-ink)";
-      }
-    }
   }
 
   // ---------------------------------------------------------------------------
-  // 6. Form Submission & Real Backend Integration
+  // 8. Strict Form Validation & Backend Prediction
   // ---------------------------------------------------------------------------
   function showError(msg, field) {
     if (field) {
@@ -297,17 +380,10 @@
   }
 
   function clearError() {
-    [ageInput, incomeInput, loanAmntInput, loanIntRateInput].forEach((el) => {
+    allFormInputs.forEach((el) => {
       if (el) el.setCustomValidity("");
     });
   }
-
-  // Clear custom validity when input changes
-  [ageInput, incomeInput, loanAmntInput, loanIntRateInput].forEach((el) => {
-    if (el) {
-      el.addEventListener("input", () => el.setCustomValidity(""));
-    }
-  });
 
   function setLoading(isLoading) {
     assessBtn.disabled = isLoading;
@@ -321,33 +397,106 @@
   async function performAssessment() {
     clearError();
 
-    const age = parseInt(ageInput.value, 10);
-    const income = parseCurrency(incomeInput.value);
-    const empLength = parseFloat(empLengthInput.value);
-    const amount = parseCurrency(loanAmntInput.value);
-    const rate = parseFloat(loanIntRateInput.value);
-    const percentIncome = parseFloat(loanPercentIncomeInput.value);
-    const credHist = parseInt(credHistLengthInput.value, 10);
-
+    // 1. Age validation
+    const rawAge = ageInput.value.trim();
+    if (!rawAge) {
+      showError("Please enter applicant age.", ageInput);
+      return;
+    }
+    const age = parseInt(rawAge, 10);
     if (isNaN(age) || age < 18 || age > 100) {
-      showError("Please enter a valid age between 18 and 100.", ageInput);
+      showError("Age must be between 18 and 100 years.", ageInput);
       return;
     }
 
+    // 2. Annual Income validation
+    const rawIncome = incomeInput.value.trim();
+    if (!rawIncome) {
+      showError("Please enter annual income.", incomeInput);
+      return;
+    }
+    const income = parseCurrency(rawIncome);
     if (isNaN(income) || income <= 0) {
-      showError("Please enter a valid annual income greater than 0.", incomeInput);
+      showError("Annual income must be greater than ₹0.", incomeInput);
       return;
     }
 
+    // 3. Home Ownership validation
+    if (!homeOwnershipInput.value) {
+      showError("Please select a home ownership status.", homeOwnershipInput);
+      return;
+    }
+
+    // 4. Employment Length validation
+    const rawEmp = empLengthInput.value.trim();
+    if (!rawEmp) {
+      showError("Please enter employment length.", empLengthInput);
+      return;
+    }
+    const empLength = parseFloat(rawEmp);
+    if (isNaN(empLength) || empLength < 0 || empLength > 60) {
+      showError("Employment length must be between 0 and 60 years.", empLengthInput);
+      return;
+    }
+
+    // 5. Loan Purpose validation
+    if (!loanIntentInput.value) {
+      showError("Please select a loan purpose.", loanIntentInput);
+      return;
+    }
+
+    // 6. Loan Grade validation
+    if (!loanGradeInput.value) {
+      showError("Please select a loan grade.", loanGradeInput);
+      return;
+    }
+
+    // 7. Loan Amount validation
+    const rawAmnt = loanAmntInput.value.trim();
+    if (!rawAmnt) {
+      showError("Please enter requested loan amount.", loanAmntInput);
+      return;
+    }
+    const amount = parseCurrency(rawAmnt);
     if (isNaN(amount) || amount < 100) {
       showError("Requested loan amount must be at least ₹100.", loanAmntInput);
       return;
     }
 
+    // 8. Interest Rate validation
+    const rawRate = loanIntRateInput.value.trim();
+    if (!rawRate) {
+      showError("Please enter interest rate.", loanIntRateInput);
+      return;
+    }
+    const rate = parseFloat(rawRate);
     if (isNaN(rate) || rate < 0 || rate > 40) {
       showError("Interest rate must be between 0.0% and 40.0%.", loanIntRateInput);
       return;
     }
+
+    // 9. Previous Default on File validation
+    if (!defaultOnFileInput.value) {
+      showError("Please select previous default on file option.", defaultOnFileInput);
+      return;
+    }
+
+    // 10. Credit History Length validation
+    const rawCred = credHistLengthInput.value.trim();
+    if (!rawCred) {
+      showError("Please enter credit history length.", credHistLengthInput);
+      return;
+    }
+    const credHist = parseInt(rawCred, 10);
+    if (isNaN(credHist) || credHist < 0 || credHist > 60) {
+      showError("Credit history length must be between 0 and 60 years.", credHistLengthInput);
+      return;
+    }
+
+    // Computed Loan-to-Income
+    const percentIncome = parseFloat((amount / income).toFixed(2));
+    loanPercentIncomeInput.value = percentIncome;
+    ltiBadgeDisplay.textContent = (amount / income).toFixed(4);
 
     const payload = {
       person_age: age,
@@ -402,9 +551,6 @@
     performAssessment();
   });
 
-  // Perform initial prediction on page load so the dashboard is immediately populated
-  setTimeout(() => {
-    performAssessment();
-  }, 400);
+  // Note: No automatic prediction on page load. Form and Assessment remain empty until user submits.
 
 })();

@@ -54,6 +54,13 @@
   --risk-high-pill-bg: #fee2e2;
   --risk-high-pill-border: #f87171;
 
+  /* Risk status colors - Pending / Neutral */
+  --risk-pending-bg: #f8fafc;
+  --risk-pending-border: #e2e8f0;
+  --risk-pending-ink: #334155;
+  --risk-pending-desc: #64748b;
+  --risk-pending-gauge: #cbd5e1;
+
   --gauge-track: #e2e8f0;
 
   --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
@@ -107,6 +114,13 @@
   --risk-high-gauge: #f43f5e;
   --risk-high-pill-bg: rgba(239, 68, 68, 0.18);
   --risk-high-pill-border: rgba(239, 68, 68, 0.45);
+
+  /* Risk status colors - Pending / Neutral (Dark) */
+  --risk-pending-bg: rgba(30, 41, 59, 0.45);
+  --risk-pending-border: rgba(51, 65, 85, 0.6);
+  --risk-pending-ink: #cbd5e1;
+  --risk-pending-desc: #94a3b8;
+  --risk-pending-gauge: #334155;
 
   --gauge-track: #1e293b;
 
@@ -332,9 +346,38 @@ html, body {
 .card-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
   flex-shrink: 0;
+}
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: transparent;
+  border: 1px solid var(--border-card);
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.form-reset-btn:hover {
+  background-color: var(--bg-section-banner);
+  color: var(--ink-primary);
+  border-color: var(--brand-blue);
 }
 
 .card-icon-badge {
@@ -477,6 +520,24 @@ html, body {
   box-shadow: var(--shadow-input-focus);
 }
 
+.form-input::placeholder {
+  color: var(--ink-muted);
+  opacity: 0.8;
+}
+
+.form-select:invalid {
+  color: var(--ink-muted);
+}
+
+.form-select option {
+  color: var(--ink-primary);
+  background-color: var(--bg-card);
+}
+
+.form-select option[value=""] {
+  color: var(--ink-muted);
+}
+
 .select-wrapper {
   position: relative;
 }
@@ -588,6 +649,11 @@ html, body {
   border: 1px solid var(--risk-high-border);
 }
 
+.risk-classification-banner.risk-pending {
+  background-color: var(--risk-pending-bg);
+  border: 1px solid var(--risk-pending-border);
+}
+
 .risk-banner-icon {
   display: flex;
   align-items: center;
@@ -608,6 +674,10 @@ html, body {
   color: var(--risk-high-ink);
 }
 
+.risk-classification-banner.risk-pending .risk-banner-icon {
+  color: var(--risk-pending-ink);
+}
+
 .risk-status-title {
   font-size: 19px;
   font-weight: 700;
@@ -623,6 +693,10 @@ html, body {
   color: var(--risk-high-ink);
 }
 
+.risk-classification-banner.risk-pending .risk-status-title {
+  color: var(--risk-pending-ink);
+}
+
 .risk-status-desc {
   font-size: 12px;
   margin-top: 2px;
@@ -635,6 +709,10 @@ html, body {
 
 .risk-classification-banner.risk-high .risk-status-desc {
   color: var(--risk-high-desc);
+}
+
+.risk-classification-banner.risk-pending .risk-status-desc {
+  color: var(--risk-pending-desc);
 }
 
 /* Gauge Box (Full Width & Centered) */
@@ -682,11 +760,11 @@ html, body {
 
 .gauge-track-fill {
   fill: none;
-  stroke: var(--risk-low-gauge);
+  stroke: var(--risk-pending-gauge);
   stroke-width: 14;
   stroke-linecap: round;
   stroke-dasharray: var(--gauge-length);
-  stroke-dashoffset: 196.27; /* 235.62 * (1 - 0.167) default */
+  stroke-dashoffset: 235.62; /* 0% filled initially */
   transition: stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.3s ease;
 }
 
