@@ -1,332 +1,355 @@
-# Credit Risk Assessment System
+# Credit Risk Management — AI Underwriting & Risk Assessment System
 
-An end-to-end Machine Learning project focused on predicting credit risk using ensemble learning and boosting techniques. The project explores data preprocessing, model development, hyperparameter optimization, decision threshold optimization, and model deployment.
-
-This project is developed as a hands-on learning initiative, following a tutorial as a reference while incorporating independent experimentation, implementation improvements, and additional learning along the way.
+A production-ready, full-stack Machine Learning application for consumer credit risk assessment. The system evaluates loan applicant profiles and predicts default probability using a calibrated gradient boosting model (XGBoost with Platt Scaling) served via high-throughput FastAPI and an interactive, modern financial technology underwriting dashboard.
 
 ---
 
-## Project Overview
+## 1. Project Overview
 
-Credit risk assessment is an important application of Machine Learning in the financial industry. Financial institutions need reliable methods to evaluate borrowers and identify applicants who may have a higher likelihood of defaulting on their loans.
+Credit risk management is a core function in modern financial institutions, enabling lenders to evaluate the probability of debt default prior to credit origination. This project provides an end-to-end implementation of an automated risk scoring engine:
 
-The objective of this project is to develop a Machine Learning model that analyzes applicant and loan-related information to predict credit risk.
+- **Machine Learning Core:** Gradient boosted decision trees (XGBoost) trained on demographic, financial, credit bureau, and loan structure features, calibrated via `CalibratedClassifierCV` (Platt Scaling) and evaluated against an F1/Recall-optimized decision threshold ($0.4328$).
+- **API Backend:** Production ASGI service built with **FastAPI** featuring strict Pydantic v2 input schema validation, lifespan-managed artifact lifecycle, structured logging, dynamic `/health` and `/api/info` endpoints, and graceful error handling.
+- **Frontend Dashboard:** A modern, professional fintech dashboard (Inter & JetBrains Mono typography, responsive 2-column workspace, circular SVG default probability gauge, linear risk spectrum bar, dynamic loan-to-income ratio calculator with override detection, and 1-click test scenario presets).
+- **Deployment-Ready:** Native Render web service configuration supporting dynamic `$PORT` binding, predictable directory structures, clean UTF-8 dependency specifications, and ASGI execution.
 
-The project focuses on understanding the practical implementation of boosting algorithms and exploring how different techniques can improve classification performance.
-
-Beyond model development, the project also explores the broader Machine Learning workflow, from data exploration to deploying a trained model.
-
-## Project Objectives
-
-- Understand the practical applications of boosting algorithms in credit risk assessment.
-- Perform Exploratory Data Analysis (EDA) to understand the dataset.
-- Implement appropriate data preprocessing and feature engineering techniques.
-- Investigate and handle class imbalance.
-- Develop and evaluate classification models.
-- Explore XGBoost and its important hyperparameters.
-- Perform hyperparameter optimization.
-- Understand and implement decision threshold optimization.
-- Explore probability calibration.
-- Understand model predictions using SHAP explainability.
-- Serialize trained models for reuse.
-- Develop an application for making predictions using the trained model.
+> [!IMPORTANT]
+> **Regulatory & Model Risk Notice:**  
+> This system generates statistical risk estimates for educational, evaluation, and underwriting assistance purposes. It does not make binding credit decisions, issue adverse action notices, or substitute for comprehensive financial compliance. The underlying model is not certified for production financial lending without institutional audit, fairness verification, and continuous drift monitoring.
 
 ---
 
-## Dataset
+## 2. Key Features
 
-**Dataset:** Credit Risk Dataset
+### Frontend UI/UX
+- **Fintech Dashboard Aesthetic:** Minimal, clean layout engineered for credit underwriters and risk analysts.
+- **Dynamic LTI Auto-Calculation:** Automatically calculates the Loan-to-Income ratio ($\frac{\text{Loan Amount}}{\text{Annual Income}}$) in real time while supporting manual overrides with clear badge indicators and a one-click reset to auto.
+- **Underwriting Presets:** Instant 1-click test scenarios (Prime Profile $\approx 3.8\%$ risk, Borderline Profile $\approx 37.4\%$ risk, Subprime Profile $\approx 99.1\%$ risk).
+- **Interactive Risk Gauge & Spectrum Bar:** Dual visualization illustrating both the exact default probability percentage and applicant positioning relative to the optimal $43.28\%$ decision boundary.
+- **Accessible & Responsive:** Semantic HTML5, ARIA live regions, responsive layout across desktop, tablet, and mobile, with support for reduced motion preferences.
+- **Zero Framework Bloat:** Served directly as high-performance static assets by FastAPI without requiring separate Node.js or frontend hosting.
 
-**Target Variable:** `loan_status`
-
-The dataset contains information about loan applicants, including their financial background, employment details, credit history, and loan characteristics.
-
-### Features
-
-| Feature | Description |
-|---|---|
-| `person_age` | Age of the applicant |
-| `person_income` | Annual income of the applicant |
-| `person_home_ownership` | Home ownership status |
-| `person_emp_length` | Employment length in years |
-| `loan_intent` | Purpose of the loan |
-| `loan_grade` | Assigned loan grade |
-| `loan_amnt` | Loan amount |
-| `loan_int_rate` | Loan interest rate |
-| `loan_percent_income` | Loan amount as a percentage of income |
-| `cb_person_default_on_file` | Historical default indicator |
-| `cb_person_cred_hist_length` | Length of credit history |
-| `loan_status` | Target variable |
-
-**Note:** The meaning of the target variable's encoded classes should be verified before interpreting predictions as default risk or loan approval.
+### Backend & Model Serving
+- **FastAPI Lifespan Management:** Artifacts (`credit_risk_model.pkl` and `best_threshold.pkl`) are loaded once during application startup with path-independent resolution based on `BASE_DIR`.
+- **Strict Pydantic Input Validation:** Rejects out-of-bounds numerical inputs, unseen categorical values, and unexpected payload attributes with descriptive HTTP 422 errors.
+- **Automated Health Monitoring:** Dedicated `GET /health` endpoint for Render health checks and container probes, returning HTTP 200 when healthy and HTTP 503 when degraded.
+- **Introspection Endpoint:** `GET /api/info` surfaces model metadata, verified feature names, and decision threshold.
+- **Error Handling & Security:** Internal exceptions and tracebacks are shielded from end-users; errors are logged with standard timestamps and contextual loggers.
 
 ---
 
-## Machine Learning Workflow
+## 3. Technology Stack
 
-The project explores the following stages of the Machine Learning pipeline.
-
-### 1. Exploratory Data Analysis
-
-- Understanding dataset structure and distributions.
-- Analyzing numerical and categorical features.
-- Identifying missing values and duplicate records.
-- Investigating outliers.
-- Understanding relationships between features and the target variable.
-- Examining class distribution.
-
-### 2. Data Preprocessing
-
-- Handling missing and invalid values.
-- Removing duplicate records where appropriate.
-- Encoding categorical variables.
-- Scaling numerical features where required.
-- Preparing data for model training.
-
-### 3. Handling Class Imbalance
-
-Exploring techniques to address imbalanced classification:
-
-- SMOTE (Synthetic Minority Over-sampling Technique).
-- Class weighting.
-- Comparing model performance with different balancing strategies.
-
-### 4. Baseline Model Development
-
-Establishing baseline performance using traditional classification algorithms before exploring boosting techniques.
-
-### 5. Boosting Algorithms
-
-Exploring boosting methods, with a primary focus on:
-
-- XGBoost Classifier.
-- Sequential learning.
-- Weak learners.
-- Boosting iterations.
-- Regularization and model complexity.
-
-### 6. Hyperparameter Optimization
-
-Exploring hyperparameter tuning techniques to improve model performance.
-
-Important XGBoost hyperparameters include:
-
-- `n_estimators`
-- `max_depth`
-- `learning_rate`
-- `subsample`
-- `colsample_bytree`
-- `min_child_weight`
-- `gamma`
-- `reg_alpha`
-- `reg_lambda`
-
-### 7. Model Evaluation
-
-Evaluating classification performance using:
-
-- Accuracy
-- Precision
-- Recall
-- F1-score
-- Confusion Matrix
-- ROC-AUC
-- Precision-Recall Curve
-
-### 8. Decision Threshold Optimization
-
-Exploring how different classification thresholds affect model predictions.
-
-- Understanding the default classification threshold.
-- Experimenting with different thresholds.
-- Analyzing precision-recall trade-offs.
-- Selecting an appropriate threshold based on evaluation criteria.
-
-### 9. Probability Calibration
-
-Exploring techniques to improve the reliability of predicted probabilities.
-
-- Sigmoid Calibration (Platt Scaling).
-- Isotonic Regression.
-
-### 10. Model Explainability
-
-Using SHAP (SHapley Additive exPlanations) to understand model predictions.
-
-- Global feature importance.
-- SHAP Summary Plot.
-- Individual prediction explanations.
-- Feature contributions to model predictions.
-
-### 11. Model Serialization and Deployment
-
-Saving trained model artifacts for reuse and integrating them into an application.
+| Layer | Technologies | Purpose |
+|---|---|---|
+| **Frontend** | HTML5, CSS3 (Custom Properties & Grid), JavaScript (ES6+) | Modern fintech underwriting dashboard |
+| **Backend API** | FastAPI, Starlette, Pydantic v2, Uvicorn | High-throughput asynchronous ASGI microservice |
+| **Machine Learning** | Scikit-learn (`CalibratedClassifierCV`, `Pipeline`), XGBoost | Pipeline preprocessing & calibrated default prediction |
+| **Data Processing** | Pandas, NumPy, Scipy, Joblib | Feature manipulation & artifact serialization |
+| **Cloud Deployment** | Render (Python Web Service), ASGI | Production cloud execution |
+| **Testing** | Pytest, HTTPX, FastAPI TestClient | Automated integration & validation test suite |
 
 ---
 
-## Technology Stack
-
-| Category | Technologies |
-|---|---|
-| Programming Language | Python |
-| Data Manipulation | NumPy, Pandas |
-| Data Visualization | Matplotlib, Seaborn |
-| Machine Learning | Scikit-learn |
-| Boosting | XGBoost |
-| Imbalanced Learning | Imbalanced-learn |
-| Explainable AI | SHAP |
-| Model Serialization | Joblib / Pickle |
-| Development Environment | Jupyter Notebook |
-| Application | Python |
-| Deployment | Render |
-| Version Control | Git and GitHub |
-
----
-
-## Project Structure
+## 4. Project Directory Structure
 
 ```text
-Credit-Risk-Assessment/
+Credit-Risk-Management/
+├── main.py                         # FastAPI application entry point, lifespan, routes & validation
+├── test_app.py                     # Automated test suite (health, predict, validation, static)
+├── credit_risk_model.pkl           # Serialized model pipeline (Pipeline + XGBoost + Calibration)
+├── best_threshold.pkl              # Optimized decision cutoff threshold (0.4328)
+├── credit_risk_dataset.csv         # Benchmark credit dataset used for training & verification
+├── credit_risk_assessment.ipynb    # Jupyter Notebook detailing EDA, modeling & threshold tuning
+├── requirements.txt                # Lean, pinned production dependencies (UTF-8 encoded)
+├── environment.yml                 # Conda environment definition
+├── render.yaml                     # Render Blueprint infrastructure-as-code configuration
+├── runtime.txt                     # Target Python runtime specification (python-3.12.8)
+├── .python-version                 # Environment Python version hint (3.12.8)
+├── README.md                       # Complete technical documentation
 │
-├── __pycache__/
-│
-├── static/
-│   └── Application static assets
-│
-├── .gitignore
-│
-├── credit_risk_assessment.ipynb
-│
-├── best_threshold.pkl
-│
-├── credit_risk_dataset.csv
-│
-├── credit_risk_model.pkl
-│
-├── main.py
-│
-├── render.yaml
-│
-├── requirements.txt
-│
-└── runtime.txt
+└── static/                         # Frontend application assets (served by FastAPI)
+    ├── index.html                  # Semantic dashboard structure & layout
+    ├── style.css                   # Modern fintech stylesheet (dark slate palette & responsive grid)
+    └── script.js                   # Client-side controller, LTI calculations & API integration
 ```
-
-### File and Directory Description
-
-| File / Directory | Purpose |
-|---|---|
-| `static/` | Contains static assets used by the application. |
-| `.gitignore` | Specifies files and directories Git should ignore. |
-| `credit_risk_assessment.ipynb` | Jupyter Notebook containing the Machine Learning workflow and experiments. |
-| `best_threshold.pkl` | Stores the optimized classification threshold. |
-| `credit_risk_dataset.csv` | Credit risk dataset used for model development. |
-| `credit_risk_model.pkl` | Serialized trained Machine Learning model. |
-| `main.py` | Main Python application entry point. |
-| `render.yaml` | Render deployment configuration. |
-| `requirements.txt` | Python project dependencies. |
-| `runtime.txt` | Python runtime configuration. |
 
 ---
 
-## Installation and Setup
+## 5. Model Architecture & Prediction Workflow
+
+### Input Feature Specification
+
+The serialized pipeline expects a DataFrame containing the exact 11 features listed below:
+
+| Feature Name | Type | Allowed Range / Categories | Description |
+|---|---|---|---|
+| `person_age` | Integer | $18 \le \text{age} \le 120$ | Applicant age in years |
+| `person_income` | Float | $\ge 0.0$ | Annual gross income |
+| `person_home_ownership` | String | `RENT`, `MORTGAGE`, `OWN`, `OTHER` | Residential housing status |
+| `person_emp_length` | Float | $0.0 \le \text{emp} \le 70.0$ | Continuous employment duration (years) |
+| `loan_intent` | String | `PERSONAL`, `EDUCATION`, `MEDICAL`, `VENTURE`, `HOMEIMPROVEMENT`, `DEBTCONSOLIDATION` | Stated loan purpose |
+| `loan_grade` | String | `A`, `B`, `C`, `D`, `E`, `F`, `G` | Risk grading tier ($A$ is lowest risk) |
+| `loan_amnt` | Float | $100.0 \le \text{amnt} \le 10,000,000.0$ | Requested principal loan amount |
+| `loan_int_rate` | Float | $0.0 \le \text{rate} \le 50.0$ | Contract annual interest rate ($\%$) |
+| `loan_percent_income` | Float | $0.0 \le \text{ratio} \le 2.5$ | Loan amount divided by annual income |
+| `cb_person_default_on_file`| String | `Y`, `N` | Historical delinquency / default record |
+| `cb_person_cred_hist_length` | Integer | $0 \le \text{hist} \le 60$ | Length of credit bureau history (years) |
+
+### End-to-End Prediction Flow
+
+```
+[ User Input / Client Dashboard ]
+              │
+              ▼  (JSON POST /predict)
+[ Pydantic v2 LoanApplication Schema Validation ]
+              │
+              ▼  (Validated pd.DataFrame)
+[ Scikit-learn Pipeline (ColumnTransformer) ]
+   ├── Numerical: SimpleImputer(strategy='median')
+   └── Categorical: SimpleImputer + OneHotEncoder(drop='first', handle_unknown='ignore')
+              │
+              ▼
+[ XGBoost Classifier + CalibratedClassifierCV ]
+   └── Generates Calibrated Default Probability P(Default)
+              │
+              ▼
+[ Decision Threshold Comparison ]
+   ├── If P(Default) >= 0.4328 ──► Class 1 ("High Risk")
+   └── If P(Default) <  0.4328 ──► Class 0 ("Low Risk")
+              │
+              ▼  (JSON Response)
+[ Interactive Frontend Rendering & Gauge Animation ]
+```
+
+---
+
+## 6. Local Installation & Environment Setup
 
 ### Prerequisites
-
-- Python 3.12
-- Conda
+- Python 3.12 (recommended: Python 3.12.8)
+- Conda or virtualenv
 - Git
 
-### 1. Clone the repository
+### Option A: Using Conda (Recommended)
 
 ```bash
-git clone <your-github-repository-url>
-```
+# 1. Clone repository
+git clone <repository-url>
+cd Credit-Risk-Management
 
-### 2. Navigate to the project directory
+# 2. Create and activate Conda environment
+conda create -n credit-risk-assess python=3.12 -y
+conda activate credit-risk-assess
 
-```bash
-cd Credit-Risk-Assessment
-```
-
-### 3. Create a Conda environment
-
-```bash
-conda create -n credit-risk-boosting python=3.12 -y
-```
-
-### 4. Activate the environment
-
-```bash
-conda activate credit-risk-boosting
-```
-
-### 5. Install dependencies
-
-```bash
+# 3. Install pinned dependencies
 pip install -r requirements.txt
 ```
 
-### 6. Run the application
+### Option B: Using Standard Python Virtual Environment
+
+```bash
+# 1. Create virtual environment
+python -m venv venv
+
+# 2. Activate virtual environment
+# Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
+# Linux / macOS:
+source venv/bin/activate
+
+# 3. Install pinned dependencies
+pip install -r requirements.txt
+```
+
+---
+
+## 7. Running the Application Locally
+
+### Using the Direct Python Entry Point
 
 ```bash
 python main.py
 ```
+*The application starts on `http://0.0.0.0:8000` (or the port specified by the `PORT` environment variable).*
+
+### Using Uvicorn Directly
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Open your browser to:
+- **Web Dashboard:** `http://localhost:8000/`
+- **Interactive Swagger Docs:** `http://localhost:8000/docs`
+- **ReDoc Documentation:** `http://localhost:8000/redoc`
+- **Service Health Check:** `http://localhost:8000/health`
 
 ---
 
-## Learning Approach and Independent Contributions
+## 8. API Specification & Endpoints
 
-This project is not intended to be a direct reproduction of the tutorial.
+### 1. `GET /health`
+Probes service health, artifact status, and decision threshold.
 
-The tutorial provides a learning reference for understanding the concepts and implementation workflow. Alongside following it, I am independently exploring the underlying mathematics, experimenting with alternative approaches, and improving the implementation.
+**Response (`200 OK`):**
+```json
+{
+  "status": "healthy",
+  "model_loaded": true,
+  "threshold_loaded": true,
+  "threshold": 0.4328407049179077,
+  "version": "1.0.0"
+}
+```
 
-My focus is on:
+### 2. `GET /api/info`
+Surfaces model metadata and expected feature schema.
 
-- Understanding the mathematical intuition behind Machine Learning algorithms.
-- Experimenting with different preprocessing strategies.
-- Comparing different classification models.
-- Understanding the impact of hyperparameters on model performance.
-- Evaluating models using appropriate metrics.
-- Exploring techniques beyond the original tutorial.
-- Improving code organization and maintainability.
-- Following proper Git version control practices.
-- Understanding the practical considerations involved in deploying Machine Learning models.
+**Response (`200 OK`):**
+```json
+{
+  "service": "Credit Risk Management",
+  "model_name": "Calibrated XGBoost Classifier",
+  "model_class": "CalibratedClassifierCV",
+  "threshold": 0.4328407049179077,
+  "features_count": 11,
+  "features": [
+    "person_age",
+    "person_income",
+    "person_home_ownership",
+    "person_emp_length",
+    "loan_intent",
+    "loan_grade",
+    "loan_amnt",
+    "loan_int_rate",
+    "loan_percent_income",
+    "cb_person_default_on_file",
+    "cb_person_cred_hist_length"
+  ],
+  "target": "loan_status (0=Non-Default, 1=Default)"
+}
+```
 
-The primary goal is to develop a deeper understanding of the complete Machine Learning lifecycle rather than simply achieving a good prediction score.
+### 3. `POST /predict`
+Evaluates applicant credit risk and returns default probability and classification.
+
+**Request Payload:**
+```json
+{
+  "person_age": 30,
+  "person_income": 65000.0,
+  "person_home_ownership": "RENT",
+  "person_emp_length": 6.0,
+  "loan_intent": "EDUCATION",
+  "loan_grade": "B",
+  "loan_amnt": 8000.0,
+  "loan_int_rate": 9.5,
+  "loan_percent_income": 0.12,
+  "cb_person_default_on_file": "N",
+  "cb_person_cred_hist_length": 6
+}
+```
+
+**Response (`200 OK`):**
+```json
+{
+  "default_probability": 0.04061716509098045,
+  "default_prediction": 0,
+  "threshold": 0.4328407049179077,
+  "Result": "Low Risk"
+}
+```
+
+**Validation Error (`422 Unprocessable Entity`):**
+If any feature is out-of-bounds (e.g., `person_age: 16`), an unseen category is provided, or unexpected keys are included, a structured 422 error is returned detailing the validation violation.
 
 ---
 
-## Learning Resource and Credits
+## 9. Render Deployment Guide
 
-This project is inspired by the following YouTube tutorial:
+The application is pre-configured for automated or manual deployment on Render as a Python Web Service.
 
-**[Original YouTube Tutorial](https://www.youtube.com/watch?v=r_ViVO9uTdU&t=2512s)**
+### Deployment Configuration Summary
 
-The tutorial serves as a reference for understanding the concepts, workflow, and practical implementation of a credit risk assessment system using Machine Learning and boosting techniques.
+- **Runtime:** Python 3.12
+- **Build Command:**
+  ```bash
+  pip install -r requirements.txt
+  ```
+- **Start Command:**
+  ```bash
+  uvicorn main:app --host 0.0.0.0 --port $PORT
+  ```
+- **Health Check Path:**
+  ```text
+  /health
+  ```
+- **Environment Variables:**
+  - `PYTHON_VERSION`: `3.12.8`
 
-All credit for the original tutorial, its instructional content, and the concepts demonstrated belongs to the respective creator.
+### Step-by-Step Render Deployment Instructions
 
-This repository represents my independent learning and implementation, with additional experimentation, modifications, and improvements.
+1. Push this repository to GitHub or GitLab.
+2. Log in to [Render Dashboard](https://dashboard.render.com).
+3. Click **New +** and select **Web Service**.
+4. Connect your Git repository.
+5. Configure the service settings:
+   - **Name:** `credit-risk-management`
+   - **Region:** Choose the region closest to your users.
+   - **Branch:** `main` (or your default branch)
+   - **Runtime:** `Python 3`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
+6. Under **Advanced Settings**:
+   - Set **Health Check Path** to `/health`.
+   - Add Environment Variable:
+     - Key: `PYTHON_VERSION`
+     - Value: `3.12.8`
+7. Click **Create Web Service**. Render will install dependencies, load the serialized model artifacts, run health checks, and serve the dashboard.
 
-**This is an independent educational project and is not an official repository of the original tutorial.**
+*(Alternatively, if using Render Blueprints, Render will automatically detect `render.yaml` located at the root of the repository).*
 
 ---
 
-## Project Status
+## 10. Automated Testing & Verification
 
-**Status: In Progress**
+A comprehensive Pytest test suite is included in `test_app.py` covering health endpoints, model inference, prediction thresholds, validation rules, and static asset serving.
 
-The project is part of my continuous learning journey in Machine Learning and Data Science.
+Run the test suite locally:
 
-Further experiments, improvements, and documentation will be added as development progresses.
+```bash
+pytest test_app.py -v
+```
+
+Expected output:
+```text
+test_app.py::test_health_check PASSED                                    [ 12%]
+test_app.py::test_api_info PASSED                                        [ 25%]
+test_app.py::test_predict_low_risk_applicant PASSED                      [ 37%]
+test_app.py::test_predict_high_risk_applicant PASSED                     [ 50%]
+test_app.py::test_validation_underage PASSED                             [ 62%]
+test_app.py::test_validation_invalid_categorical PASSED                  [ 75%]
+test_app.py::test_validation_extra_fields_forbidden PASSED               [ 87%]
+test_app.py::test_static_frontend_served PASSED                          [100%]
+======================== 8 passed in ~5s =========================
+```
 
 ---
 
-## Disclaimer
+## 11. Known Limitations & Model Considerations
 
-This project is developed strictly for educational and learning purposes.
+1. **Non-Decision Engine:** The application predicts statistical default risk based on historical correlations. It is not an automated loan approval engine and must not be used as the sole basis for adverse credit decisions.
+2. **Feature Coverage:** The model assumes the 11 input features are available and verified. Missing bureau history or unverified income should not be filled arbitrarily.
+3. **Distribution Shift:** Model performance may degrade if macroeconomic conditions (such as interest rate shocks or regulatory lending criteria) diverge substantially from the distribution represented in `credit_risk_dataset.csv`.
+4. **Explainability Scope:** Global calibration and threshold tuning are implemented; individual local feature attributions (e.g. SHAP values) are documented in `credit_risk_assessment.ipynb` for offline research rather than calculated per-request to preserve low-latency API response times.
 
-The predictions generated by this model should not be used for actual financial, lending, or credit approval decisions.
+---
 
-Real-world credit risk assessment systems require extensive validation, fairness assessments, regulatory compliance, security measures, and continuous model monitoring.
+## 12. Learning Resources & Attribution
+
+This project was developed as a hands-on Machine Learning engineering project inspired by consumer credit risk assessment methodologies.
+
+- **Dataset:** Credit Risk Benchmark Dataset (`credit_risk_dataset.csv`)
+- **Tutorial Reference:** Inspired by foundational credit scoring tutorials, with independent architectural redesign, probability calibration, threshold optimization, production API hardening, and UI/UX modernization.
+- **License:** Educational and demonstration use.
