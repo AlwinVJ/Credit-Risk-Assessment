@@ -279,13 +279,6 @@
             </div>
           </div>
 
-          <!-- Submit Button -->
-          <button type="submit" id="assessBtn" class="assess-submit-btn">
-            <span class="submit-spinner" aria-hidden="true"></span>
-            <span class="submit-icon" aria-hidden="true">▷</span>
-            <span class="submit-label">Assess Credit Risk</span>
-          </button>
-
         </form>
       </section>
 
@@ -324,7 +317,7 @@
           </div>
         </div>
 
-        <!-- Gauge & Classification Threshold Box -->
+        <!-- Gauge Box (Full Width & Centered, Internal Threshold Removed) -->
         <div class="gauge-threshold-container">
           
           <!-- Semicircular Gauge -->
@@ -345,15 +338,6 @@
             </div>
           </div>
 
-          <!-- Classification Threshold Column -->
-          <div class="threshold-column">
-            <div class="threshold-label-wrap">
-              <span>Classification Threshold</span>
-              <span class="info-tooltip-icon" title="The mathematical decision cutoff generated during model optimization. If default probability ≥ threshold, the applicant is classified as High Risk.">ⓘ</span>
-            </div>
-            <div class="threshold-pill-badge mono" id="thresholdDisplayPill">0.42</div>
-          </div>
-
         </div>
 
         <!-- How to Interpret This Result? Section -->
@@ -364,19 +348,23 @@
           </h4>
           <ul class="interpretation-list">
             <li>
-              <strong>Default Probability:</strong> The model's estimated chance that the applicant will default.
+              <strong>Default Probability:</strong> The model's estimated statistical chance that the borrower will default.
             </li>
             <li>
-              <strong>Classification Threshold:</strong> The probability cutoff used to classify the applicant as High Risk or Low Risk.
+              <strong>Low Risk:</strong> The borrower's risk profile meets approval criteria with minimal default probability.
             </li>
             <li>
-              <strong>Low Risk:</strong> Estimated default probability is below the threshold.
-            </li>
-            <li>
-              <strong>High Risk:</strong> Estimated default probability is at or above the threshold.
+              <strong>High Risk:</strong> The borrower's risk profile indicates an elevated default probability requiring review.
             </li>
           </ul>
         </div>
+
+        <!-- Relocated Assess Credit Risk Button (Anchored at Bottom of Result Panel) -->
+        <button type="submit" form="loanForm" id="assessBtn" class="assess-submit-btn">
+          <span class="submit-spinner" aria-hidden="true"></span>
+          <span class="submit-icon" aria-hidden="true">▷</span>
+          <span class="submit-label">Assess Credit Risk</span>
+        </button>
 
       </section>
 
@@ -411,8 +399,8 @@
             <span class="meta-item-val">FastAPI (ASGI)</span>
           </div>
           <div class="modal-meta-item">
-            <span class="meta-item-label">Tuned Threshold</span>
-            <span class="meta-item-val" id="modalThresholdVal">0.4328</span>
+            <span class="meta-item-label">Decision Metric</span>
+            <span class="meta-item-val">Optimized F1</span>
           </div>
         </div>
         <p class="modal-disclaimer">

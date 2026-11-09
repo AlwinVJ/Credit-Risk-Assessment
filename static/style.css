@@ -154,7 +154,7 @@ html, body {
 .nav-container {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 12px 24px;
+  padding: 8px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -164,12 +164,12 @@ html, body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .brand-logo {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
   background-color: var(--brand-blue);
   color: #ffffff;
@@ -181,7 +181,7 @@ html, body {
 
 .brand-title {
   color: #ffffff;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.2px;
   line-height: 1.2;
@@ -189,10 +189,10 @@ html, body {
 
 .brand-subtitle {
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 400;
   line-height: 1.2;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .nav-menu {
@@ -209,9 +209,9 @@ html, body {
   border: none;
   color: #cbd5e1;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
-  padding: 7px 14px;
+  padding: 5px 12px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -237,9 +237,9 @@ html, body {
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #e2e8f0;
   font-family: var(--font-sans);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -269,9 +269,9 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 9999px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   letter-spacing: 0.1px;
 }
@@ -298,14 +298,20 @@ html, body {
 .dashboard-wrapper {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 24px 20px 48px;
+  padding: 14px 20px 18px;
+  min-height: calc(100vh - 52px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-sizing: border-box;
 }
 
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  align-items: start;
+  gap: 20px;
+  align-items: stretch;
+  flex: 1;
 }
 
 /* Card Shell */
@@ -314,7 +320,11 @@ html, body {
   border: 1px solid var(--border-card);
   border-radius: 12px;
   box-shadow: var(--shadow-card);
-  padding: 24px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
   transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -322,13 +332,14 @@ html, body {
 .card-header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 22px;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .card-icon-badge {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -362,40 +373,49 @@ html, body {
 
 .card-title {
   color: var(--ink-primary);
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.2px;
+  line-height: 1.2;
 }
 
 .card-subtitle {
   color: var(--ink-muted);
-  font-size: 13px;
-  margin-top: 2px;
+  font-size: 12px;
+  margin-top: 1px;
+  line-height: 1.3;
 }
 
 /* ==============================================================================
    Loan Application Form Styles
    ============================================================================== */
+.loan-app-card {
+  display: flex;
+  flex-direction: column;
+}
+
 .application-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  flex: 1;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
 }
 
 /* Section Header Banners */
 .section-banner {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background-color: var(--bg-section-banner);
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 5px 10px;
   transition: background-color 0.25s ease;
 }
 
@@ -405,9 +425,14 @@ html, body {
   align-items: center;
 }
 
+.section-banner-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
 .section-banner-title {
   color: var(--ink-section-banner);
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 600;
   letter-spacing: -0.1px;
 }
@@ -416,32 +441,32 @@ html, body {
 .fields-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
 }
 
 .field-col {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
 }
 
 .field-label {
   color: var(--ink-primary);
-  font-size: 13px;
+  font-size: 11.5px;
   font-weight: 600;
 }
 
 .form-input,
 .form-select {
   width: 100%;
-  height: 40px;
+  height: 34px;
   background-color: var(--bg-input);
   border: 1px solid var(--border-input);
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 5px 10px;
   color: var(--ink-primary);
   font-family: var(--font-sans);
-  font-size: 13.5px;
+  font-size: 12.5px;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.25s ease;
 }
@@ -459,13 +484,13 @@ html, body {
 .select-wrapper select {
   appearance: none;
   cursor: pointer;
-  padding-right: 32px;
+  padding-right: 28px;
 }
 
 .select-wrapper::after {
   content: "";
   position: absolute;
-  right: 14px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   width: 0;
@@ -483,16 +508,16 @@ html, body {
   justify-content: space-between;
   background-color: var(--bg-lti-box);
   border: 1px solid var(--border-lti);
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-top: 4px;
+  border-radius: 7px;
+  padding: 6px 12px;
+  margin-top: 2px;
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .lti-callout-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .lti-icon-badge {
@@ -501,15 +526,20 @@ html, body {
   align-items: center;
 }
 
+.lti-icon-badge svg {
+  width: 16px;
+  height: 16px;
+}
+
 .lti-title {
   color: var(--ink-primary);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .lti-formula {
   color: var(--ink-muted);
-  font-size: 11.5px;
+  font-size: 10.5px;
   margin-top: 1px;
 }
 
@@ -517,74 +547,14 @@ html, body {
   background-color: var(--bg-card);
   border: 1px solid #bfdbfe;
   color: var(--brand-blue);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 6px;
+  padding: 3px 10px;
+  border-radius: 5px;
 }
 
 [data-theme="dark"] .lti-badge-value {
   border-color: rgba(59, 130, 246, 0.4);
-}
-
-
-/* Primary Submit Button */
-.assess-submit-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  height: 46px;
-  background-color: var(--btn-submit-bg);
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  font-family: var(--font-sans);
-  font-size: 14.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.1s ease;
-  margin-top: 6px;
-}
-
-.assess-submit-btn:hover {
-  background-color: var(--btn-submit-hover);
-}
-
-.assess-submit-btn:active {
-  transform: translateY(1px);
-}
-
-.assess-submit-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.submit-icon {
-  font-size: 13px;
-}
-
-.submit-spinner {
-  display: none;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-.assess-submit-btn.loading .submit-spinner {
-  display: inline-block;
-}
-
-.assess-submit-btn.loading .submit-icon {
-  display: none;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 /* ==============================================================================
@@ -593,17 +563,19 @@ html, body {
 .result-card {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
+  height: 100%;
 }
 
 /* Risk Classification Banner */
 .risk-classification-banner {
   display: flex;
   align-items: center;
-  gap: 14px;
-  border-radius: 10px;
-  padding: 18px 20px;
+  gap: 12px;
+  border-radius: 9px;
+  padding: 12px 16px;
   transition: all 0.25s ease;
+  flex-shrink: 0;
 }
 
 .risk-classification-banner.risk-low {
@@ -623,6 +595,11 @@ html, body {
   flex-shrink: 0;
 }
 
+.risk-banner-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
 .risk-classification-banner.risk-low .risk-banner-icon {
   color: var(--risk-low-ink);
 }
@@ -632,7 +609,7 @@ html, body {
 }
 
 .risk-status-title {
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.2px;
   line-height: 1.2;
@@ -647,8 +624,9 @@ html, body {
 }
 
 .risk-status-desc {
-  font-size: 13.5px;
-  margin-top: 3px;
+  font-size: 12px;
+  margin-top: 2px;
+  line-height: 1.35;
 }
 
 .risk-classification-banner.risk-low .risk-status-desc {
@@ -659,17 +637,17 @@ html, body {
   color: var(--risk-high-desc);
 }
 
-/* Gauge & Threshold Box */
+/* Gauge Box (Full Width & Centered) */
 .gauge-threshold-container {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
   background-color: var(--bg-gauge-box);
   border: 1px solid var(--border-card);
-  border-radius: 10px;
-  padding: 24px 20px;
-  gap: 20px;
+  border-radius: 9px;
+  padding: 14px 18px;
   transition: background-color 0.25s ease, border-color 0.25s ease;
+  flex-shrink: 0;
 }
 
 /* Semicircular Gauge */
@@ -678,12 +656,13 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 
 .semicircle-gauge-wrap {
   position: relative;
   width: 200px;
-  height: 115px;
+  height: 110px;
   display: flex;
   justify-content: center;
 }
@@ -723,7 +702,7 @@ html, body {
 }
 
 .gauge-percent-number {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--ink-primary);
   line-height: 1.1;
@@ -731,47 +710,9 @@ html, body {
 }
 
 .gauge-caption-label {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--ink-muted);
-  margin-top: 4px;
-}
-
-/* Classification Threshold Column */
-.threshold-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.threshold-label-wrap {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--ink-muted);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.info-tooltip-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  cursor: help;
-  color: var(--ink-muted);
-}
-
-.threshold-pill-badge {
-  background-color: var(--risk-low-pill-bg);
-  border: 1px solid var(--risk-low-pill-border);
-  color: var(--risk-low-ink);
-  font-size: 18px;
-  font-weight: 700;
-  padding: 6px 20px;
-  border-radius: 6px;
-  transition: all 0.25s ease;
+  margin-top: 3px;
 }
 
 /* Interpretation Box */
@@ -779,8 +720,9 @@ html, body {
   background-color: var(--bg-interpretation-box);
   border: 1px solid var(--border-interpretation);
   border-radius: 8px;
-  padding: 18px 20px;
+  padding: 12px 16px;
   transition: background-color 0.25s ease, border-color 0.25s ease;
+  flex-shrink: 0;
 }
 
 .interpretation-title {
@@ -788,29 +730,29 @@ html, body {
   align-items: center;
   gap: 6px;
   color: var(--ink-primary);
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .interpretation-title .info-icon {
   color: var(--brand-blue);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .interpretation-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .interpretation-list li {
   position: relative;
   padding-left: 14px;
   color: var(--ink-secondary);
-  font-size: 12.5px;
-  line-height: 1.55;
+  font-size: 11.5px;
+  line-height: 1.45;
 }
 
 .interpretation-list li::before {
@@ -818,11 +760,71 @@ html, body {
   position: absolute;
   left: 0;
   color: var(--ink-muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .interpretation-list strong {
   color: var(--ink-primary);
+}
+
+/* Primary Submit Button (Relocated to bottom of Result Panel) */
+.assess-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 44px;
+  background-color: var(--btn-submit-bg);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  margin-top: auto; /* Anchors button firmly to the bottom of the card */
+  flex-shrink: 0;
+}
+
+.assess-submit-btn:hover {
+  background-color: var(--btn-submit-hover);
+}
+
+.assess-submit-btn:active {
+  transform: translateY(1px);
+}
+
+.assess-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.submit-icon {
+  font-size: 13px;
+}
+
+.submit-spinner {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.assess-submit-btn.loading .submit-spinner {
+  display: inline-block;
+}
+
+.assess-submit-btn.loading .submit-icon {
+  display: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ==============================================================================
@@ -950,8 +952,23 @@ html, body {
    Responsive Adjustments
    ============================================================================== */
 @media (max-width: 960px) {
+  .dashboard-wrapper {
+    height: auto;
+    min-height: calc(100vh - 54px);
+    padding: 16px;
+  }
+
   .dashboard-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .card {
+    height: auto;
+  }
+
+  .assess-submit-btn {
+    margin-top: 16px;
   }
 }
 
@@ -973,6 +990,6 @@ html, body {
   }
 
   .gauge-threshold-container {
-    flex-direction: column;
+    padding: 12px;
   }
 }

@@ -268,16 +268,18 @@
     // Animate Number
     animateNumberTicker(gaugeProbNumber, 0, probPct);
 
-    // Threshold pill
-    thresholdDisplayPill.textContent = threshFormatted;
-    if (isHighRisk) {
-      thresholdDisplayPill.style.backgroundColor = "var(--risk-high-pill-bg)";
-      thresholdDisplayPill.style.borderColor = "var(--risk-high-pill-border)";
-      thresholdDisplayPill.style.color = "var(--risk-high-ink)";
-    } else {
-      thresholdDisplayPill.style.backgroundColor = "var(--risk-low-pill-bg)";
-      thresholdDisplayPill.style.borderColor = "var(--risk-low-pill-border)";
-      thresholdDisplayPill.style.color = "var(--risk-low-ink)";
+    // Threshold pill (if present in DOM)
+    if (thresholdDisplayPill) {
+      thresholdDisplayPill.textContent = threshFormatted;
+      if (isHighRisk) {
+        thresholdDisplayPill.style.backgroundColor = "var(--risk-high-pill-bg)";
+        thresholdDisplayPill.style.borderColor = "var(--risk-high-pill-border)";
+        thresholdDisplayPill.style.color = "var(--risk-high-ink)";
+      } else {
+        thresholdDisplayPill.style.backgroundColor = "var(--risk-low-pill-bg)";
+        thresholdDisplayPill.style.borderColor = "var(--risk-low-pill-border)";
+        thresholdDisplayPill.style.color = "var(--risk-low-ink)";
+      }
     }
   }
 
