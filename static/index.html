@@ -3,8 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Credit Risk Management — AI Underwriting Dashboard</title>
-  <meta name="description" content="AI-powered loan default risk assessment dashboard powered by Calibrated XGBoost and FastAPI." />
+  <title>CredWise — AI-Powered Credit Risk Assessment</title>
+  <meta name="description" content="CredWise — AI-powered credit risk assessment dashboard powered by Calibrated XGBoost and FastAPI." />
+  <meta name="application-name" content="CredWise Credit Risk Management" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/favicon.png" />
 
   <!-- Zero-Flash Theme Script -->
   <script>
@@ -32,19 +38,15 @@
     <div class="nav-container">
       
       <!-- Brand Logo & Title -->
-      <div class="brand">
-        <div class="brand-logo" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
-            <rect x="3" y="12" width="4" height="8" rx="1" fill="currentColor" stroke="none" />
-            <rect x="10" y="8" width="4" height="12" rx="1" fill="currentColor" stroke="none" />
-            <rect x="17" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none" />
-          </svg>
+      <a href="#" class="brand" aria-label="CredWise — AI-Powered Credit Risk Assessment">
+        <div class="brand-logo-wrap" aria-hidden="true">
+          <img src="assets/credwise-emblem.png" alt="" class="brand-logo-img" />
         </div>
         <div class="brand-copy">
-          <h1 class="brand-title">Credit Risk Management</h1>
-          <p class="brand-subtitle">AI-powered loan default risk assessment</p>
+          <h1 class="brand-title"><span class="brand-cred">Cred</span><span class="brand-wise">Wise</span></h1>
+          <p class="brand-subtitle">AI-Powered Credit Risk Assessment</p>
         </div>
-      </div>
+      </a>
 
       <!-- Navigation Links & Actions -->
       <nav class="nav-menu" aria-label="Main Navigation">
@@ -98,11 +100,23 @@
           <span class="theme-text" id="themeText">Theme</span>
         </button>
 
-        <!-- API Connection Status Badge -->
-        <div class="api-status-pill online" id="apiStatusPill" title="Connection to FastAPI backend">
-          <span class="status-check-icon" id="apiStatusIcon" aria-hidden="true">✔</span>
-          <span class="status-label" id="apiStatusText">API Online</span>
-        </div>
+        <!-- Boosting Lab External Navigation Badge -->
+        <a href="https://alwinvj.github.io/Boosting-Lab/" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="boosting-lab-badge" 
+           aria-label="Visit Boosting Lab (opens in new tab)" 
+           title="Explore Boosting Lab">
+          <span class="boosting-lab-icon-badge" aria-hidden="true">
+            <img src="assets/boosting-lab-original.png" alt="" class="boosting-lab-icon" />
+          </span>
+          <span class="boosting-lab-text">Boosting Lab</span>
+          <svg class="boosting-lab-arrow" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+        </a>
       </nav>
 
     </div>
@@ -393,12 +407,15 @@
   <div class="modal-backdrop" id="aboutModal" hidden>
     <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
       <div class="modal-header">
-        <h3 id="aboutModalTitle" class="modal-title">About Credit Risk Management</h3>
+        <h3 id="aboutModalTitle" class="modal-title">About CredWise</h3>
         <button type="button" class="modal-close-btn" id="closeAboutModal" aria-label="Close modal">✕</button>
       </div>
       <div class="modal-body">
+        <div class="modal-brand-banner">
+          <img src="assets/credwise-logo.jpg" alt="CredWise logo" class="modal-logo-banner" />
+        </div>
         <p>
-          <strong>Credit Risk Management</strong> is an automated credit underwriting intelligence system. It utilizes a gradient boosting model (XGBoost) combined with probability calibration (Platt Scaling) to calculate the statistical likelihood of borrower default.
+          <strong>CredWise</strong> (Credit Risk Management) is an automated credit underwriting intelligence platform. It utilizes a gradient boosting model (XGBoost) combined with probability calibration (Platt Scaling) to calculate the statistical likelihood of borrower default.
         </p>
         <div class="modal-meta-grid">
           <div class="modal-meta-item">

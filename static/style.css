@@ -178,35 +178,56 @@ html, body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.brand-logo {
-  width: 34px;
-  height: 34px;
+.brand-logo-wrap {
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
-  background-color: var(--brand-blue);
-  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .brand-title {
   color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: -0.2px;
-  line-height: 1.2;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  line-height: 1.15;
+}
+
+.brand-cred {
+  color: #ffffff;
+}
+
+.brand-wise {
+  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  font-weight: 800;
 }
 
 .brand-subtitle {
   color: #94a3b8;
-  font-size: 11.5px;
-  font-weight: 400;
+  font-size: 11px;
+  font-weight: 500;
   line-height: 1.2;
   margin-top: 1px;
+  letter-spacing: 0.1px;
 }
 
 .nav-menu {
@@ -278,32 +299,77 @@ html, body {
   display: none;
 }
 
-/* API Online Status Pill */
-.api-status-pill {
+/* Boosting Lab External Navigation Badge */
+.boosting-lab-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  font-size: 11.5px;
+  gap: 7px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #f8fafc;
+  font-family: var(--font-sans);
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.1px;
+  letter-spacing: 0.15px;
+  padding: 4px 11px;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.api-status-pill.online {
-  background-color: #064e3b;
-  border: 1px solid #059669;
-  color: #34d399;
+.boosting-lab-badge:hover {
+  background-color: rgba(59, 130, 246, 0.22);
+  border-color: rgba(96, 165, 250, 0.45);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-.api-status-pill.offline {
-  background-color: #7f1d1d;
-  border: 1px solid #dc2626;
-  color: #fca5a5;
+.boosting-lab-badge:active {
+  transform: translateY(0);
 }
 
-.status-check-icon {
-  font-size: 11px;
+.boosting-lab-badge:focus-visible {
+  outline: 2px solid var(--brand-blue);
+  outline-offset: 2px;
+}
+
+.boosting-lab-icon-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.boosting-lab-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.boosting-lab-text {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.boosting-lab-arrow {
+  opacity: 0.65;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  margin-left: 1px;
+}
+
+.boosting-lab-badge:hover .boosting-lab-arrow {
+  opacity: 1;
+  transform: translate(1px, -1px);
 }
 
 /* ==============================================================================
@@ -968,6 +1034,22 @@ html, body {
 .modal-close-btn:hover {
   color: var(--ink-primary);
   background-color: rgba(255, 255, 255, 0.08);
+}
+
+.modal-brand-banner {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-card);
+  background-color: #080d1a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-logo-banner {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
 }
 
 .modal-body {
