@@ -55,6 +55,9 @@ Credit risk management is a core function in modern financial institutions, enab
 
 ```text
 Credit-Risk-Management/
+├── Dockerfile                      # Production container recipe (Python 3.12-slim, non-root, Render-ready)
+├── .dockerignore                   # Build-context optimization rules
+├── DOCKER_DEPLOYMENT.md            # Detailed Docker containerization and troubleshooting guide
 ├── main.py                         # FastAPI application entry point, lifespan, routes & validation
 ├── test_app.py                     # Automated test suite (health, predict, validation, static)
 ├── credit_risk_model.pkl           # Serialized model pipeline (Pipeline + XGBoost + Calibration)
@@ -66,6 +69,7 @@ Credit-Risk-Management/
 ├── render.yaml                     # Render Blueprint infrastructure-as-code configuration
 ├── runtime.txt                     # Target Python runtime specification (python-3.12.8)
 ├── .python-version                 # Environment Python version hint (3.12.8)
+├── .gitignore                      # Git ignore rules
 ├── README.md                       # Complete technical documentation
 │
 └── static/                         # Frontend application assets (served by FastAPI)
@@ -178,6 +182,17 @@ python main.py
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
+
+### Using Docker
+
+```bash
+# 1. Build image
+docker build -t credit-risk-management:latest .
+
+# 2. Run container
+docker run -d --rm -p 8000:8000 --name credit-risk-app credit-risk-management:latest
+```
+*(For complete container lifecycle and troubleshooting, see [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)).*
 
 Open your browser to:
 - **Web Dashboard:** `http://localhost:8000/`
