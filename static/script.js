@@ -12,8 +12,6 @@
   // Form elements
   const loanForm = document.getElementById("loanForm");
   const assessBtn = document.getElementById("assessBtn");
-  const formErrorAlert = document.getElementById("formErrorAlert");
-  const formErrorMessage = document.getElementById("formErrorMessage");
 
   // Inputs
   const ageInput = document.getElementById("person_age");
@@ -286,15 +284,28 @@
   // ---------------------------------------------------------------------------
   // 6. Form Submission & Real Backend Integration
   // ---------------------------------------------------------------------------
-  function showError(msg) {
-    formErrorMessage.textContent = msg;
-    formErrorAlert.hidden = false;
+  function showError(msg, field) {
+    if (field) {
+      field.setCustomValidity(msg);
+      field.reportValidity();
+      field.focus();
+    } else {
+      console.warn("Assessment error:", msg);
+    }
   }
 
   function clearError() {
-    formErrorAlert.hidden = true;
-    formErrorMessage.textContent = "";
+    [ageInput, incomeInput, loanAmntInput, loanIntRateInput].forEach((el) => {
+      if (el) el.setCustomValidity("");
+    });
   }
+
+  // Clear custom validity when input changes
+  [ageInput, incomeInput, loanAmntInput, loanIntRateInput].forEach((el) => {
+    if (el) {
+      el.addEventListener("input", () => el.setCustomValidity(""));
+    }
+  });
 
   function setLoading(isLoading) {
     assessBtn.disabled = isLoading;
@@ -317,26 +328,22 @@
     const credHist = parseInt(credHistLengthInput.value, 10);
 
     if (isNaN(age) || age < 18 || age > 100) {
-      showError("Please enter a valid age between 18 and 100.");
-      ageInput.focus();
+      showError("Please enter a valid age between 18 and 100.", ageInput);
       return;
     }
 
     if (isNaN(income) || income <= 0) {
-      showError("Please enter a valid annual income greater than 0.");
-      incomeInput.focus();
+      showError("Please enter a valid annual income greater than 0.", incomeInput);
       return;
     }
 
     if (isNaN(amount) || amount < 100) {
-      showError("Requested loan amount must be at least ₹100.");
-      loanAmntInput.focus();
+      showError("Requested loan amount must be at least ₹100.", loanAmntInput);
       return;
     }
 
     if (isNaN(rate) || rate < 0 || rate > 40) {
-      showError("Interest rate must be between 0.0% and 40.0%.");
-      loanIntRateInput.focus();
+      showError("Interest rate must be between 0.0% and 40.0%.", loanIntRateInput);
       return;
     }
 
@@ -382,7 +389,6 @@
       const data = await res.json();
       renderPredictionResult(data);
     } catch (err) {
-      showError(`Assessment failed: ${err.message || "Could not reach prediction service."}`);
       console.error("Prediction error:", err);
     } finally {
       setLoading(false);

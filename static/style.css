@@ -527,18 +527,6 @@ html, body {
   border-color: rgba(59, 130, 246, 0.4);
 }
 
-/* Error Banner */
-.form-error-alert {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: var(--risk-high-bg);
-  border: 1px solid var(--risk-high-border);
-  color: var(--risk-high-ink);
-  font-size: 12.5px;
-  padding: 10px 14px;
-  border-radius: 6px;
-}
 
 /* Primary Submit Button */
 .assess-submit-btn {
